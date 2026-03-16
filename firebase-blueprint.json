@@ -1,0 +1,50 @@
+{
+  "entities": {
+    "Article": {
+      "title": "Article",
+      "description": "An article published on the platform",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Title of the article" },
+        "author": { "type": "string", "description": "Author of the article" },
+        "date": { "type": "string", "description": "Date of publication" },
+        "preview": { "type": "string", "description": "Preview text of the article" },
+        "content": { "type": "string", "description": "Full content of the article" },
+        "published": { "type": "boolean", "description": "Whether the article is published" },
+        "comments": {
+          "type": "array",
+          "description": "Comments on the article",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "author": { "type": "string" },
+              "text": { "type": "string" },
+              "date": { "type": "string" }
+            }
+          }
+        }
+      },
+      "required": ["title", "author", "date", "preview", "content", "published"]
+    },
+    "Reader": {
+      "title": "Reader",
+      "description": "An authorized reader email",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "description": "Email address of the reader" }
+      },
+      "required": ["email"]
+    }
+  },
+  "firestore": {
+    "articles/{articleId}": {
+      "schema": { "$ref": "#/entities/Article" },
+      "description": "Collection of all articles"
+    },
+    "readers/{readerId}": {
+      "schema": { "$ref": "#/entities/Reader" },
+      "description": "Collection of all reader accounts"
+    }
+  }
+}

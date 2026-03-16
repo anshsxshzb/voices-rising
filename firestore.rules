@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.email == 'anshsxshzb@gmail.com';
+    }
+    
+    function isReader() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/readers/$(request.auth.token.email));
+    }
+    
+    function isAuthorized() {
+      return isAdmin() || isReader();
+    }
+
+    match /articles/{articleId} {
+      // Require authentication for all access
+      allow read: if isAuthorized();
+      
+      // Only admin can create or delete articles
+      allow create, delete: if isAdmin();
+      
+      // Admin can update anything. Readers can only update the comments field.
+      allow update: if isAdmin() || (
+        isReader() && 
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comments'])
+      );
+    }
+    
+    match /readers/{readerEmail} {
+      // Admin can do everything
+      allow read, write: if isAdmin();
+      // Readers can read their own reader document
+      allow read: if isAuthenticated() && request.auth.token.email == readerEmail;
+    }
+  }
+}
