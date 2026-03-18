@@ -93,16 +93,14 @@ export default function ArticleDetail() {
                 </div>
               </div>
               
-              {userRole && (
-                <div className="flex items-center gap-3">
-                  <button onClick={handleShare} className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-600 hover:text-indigo-600 transition-colors bg-zinc-50 px-3 py-1.5 rounded-full border border-zinc-200 hover:border-indigo-200">
-                    <Share2 className="w-4 h-4" /> Share
-                  </button>
-                  <button onClick={handleEmbed} className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-600 hover:text-indigo-600 transition-colors bg-zinc-50 px-3 py-1.5 rounded-full border border-zinc-200 hover:border-indigo-200">
-                    <Code className="w-4 h-4" /> Embed
-                  </button>
-                </div>
-              )}
+              <div className="flex items-center gap-3">
+                <button onClick={handleShare} className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-600 hover:text-indigo-600 transition-colors bg-zinc-50 px-3 py-1.5 rounded-full border border-zinc-200 hover:border-indigo-200">
+                  <Share2 className="w-4 h-4" /> Share
+                </button>
+                <button onClick={handleEmbed} className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-600 hover:text-indigo-600 transition-colors bg-zinc-50 px-3 py-1.5 rounded-full border border-zinc-200 hover:border-indigo-200">
+                  <Code className="w-4 h-4" /> Embed
+                </button>
+              </div>
             </div>
             {copyMessage && (
               <div className="mt-4 p-3 bg-green-50 text-green-700 rounded-md text-sm font-medium text-center">
@@ -123,7 +121,7 @@ export default function ArticleDetail() {
             <h2 className="text-2xl font-bold text-zinc-900 font-serif">Comments</h2>
           </div>
 
-          {userRole ? (
+          {(userRole === 'admin' || userRole === 'reader') ? (
             <form onSubmit={handleAddComment} className="mb-10">
               <label htmlFor="comment" className="sr-only">Add a comment</label>
               <textarea
@@ -144,6 +142,10 @@ export default function ArticleDetail() {
                 </button>
               </div>
             </form>
+          ) : userRole === 'pending' ? (
+            <div className="bg-zinc-50 rounded-lg p-6 text-center mb-10 border border-zinc-200">
+              <p className="text-zinc-600">Your account is pending approval. You will be able to comment once an admin approves your request.</p>
+            </div>
           ) : (
             <div className="bg-zinc-50 rounded-lg p-6 text-center mb-10 border border-zinc-200">
               <p className="text-zinc-600 mb-4">You must be logged in to leave a comment or share this article.</p>
