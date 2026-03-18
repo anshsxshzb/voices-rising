@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useArticles, addComment, Article, useUserRole } from '../lib/storage';
-import { Calendar, User, Share2, Code, MessageSquare, ArrowLeft } from 'lucide-react';
+import { useArticles, addComment, Article, useUserRole, incrementViewCount, toggleLike } from '../lib/storage';
+import { Calendar, User, Share2, Code, MessageSquare, ArrowLeft, Eye, Heart } from 'lucide-react';
+import { auth } from '../lib/firebase';
 
 export default function ArticleDetail() {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +20,17 @@ export default function ArticleDetail() {
       if (found) setArticle(found);
     }
   }, [id, articles]);
+
+  useEffect(() => {
+    if (id && article && !loading) {
+      const viewedArticles = JSON.parse(localStorage.getItem('viewedArticles') || '[]');
+      if (!viewedArticles.includes(id)) {
+        incrementViewCount(id, article.views || 0).catch(console.error);
+        viewedArticles.push(id);
+        localStorage.setItem('viewedArticles', JSON.stringify(viewedArticles));
+      }
+    }
+  }, [id, article?.id, loading]);
 
   if (loading) {
     return (
@@ -66,6 +78,19 @@ export default function ArticleDetail() {
     setCommentText('');
   };
 
+  const handleLike = async () => {
+    if (!userRole || userRole === 'pending') {
+      alert('You must be an approved reader to like articles.');
+      return;
+    }
+    const userEmail = auth.currentUser?.email;
+    if (!userEmail || !id) return;
+    
+    await toggleLike(id, userEmail, article.likedBy || []);
+  };
+
+  const hasLiked = auth.currentUser?.email ? (article.likedBy || []).includes(auth.currentUser.email) : false;
+
   return (
     <div className="bg-white min-h-screen py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -91,9 +116,21 @@ export default function ArticleDetail() {
                     {new Date(article.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </time>
                 </div>
+                <span>&bull;</span>
+                <div className="flex items-center gap-1.5" title="Views">
+                  <Eye className="h-4 w-4 text-zinc-400" />
+                  <span>{article.views || 0}</span>
+                </div>
               </div>
               
               <div className="flex items-center gap-3">
+                <button 
+                  onClick={handleLike} 
+                  className={`inline-flex items-center gap-1.5 text-sm font-medium transition-colors px-3 py-1.5 rounded-full border ${hasLiked ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100' : 'bg-zinc-50 text-zinc-600 border-zinc-200 hover:border-indigo-200 hover:text-indigo-600'}`}
+                >
+                  <Heart className={`w-4 h-4 ${hasLiked ? 'fill-current' : ''}`} /> 
+                  {article.likedBy?.length || 0}
+                </button>
                 <button onClick={handleShare} className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-600 hover:text-indigo-600 transition-colors bg-zinc-50 px-3 py-1.5 rounded-full border border-zinc-200 hover:border-indigo-200">
                   <Share2 className="w-4 h-4" /> Share
                 </button>
