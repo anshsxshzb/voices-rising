@@ -8,11 +8,15 @@ export default function Navbar() {
   const userRole = useUserRole();
 
   const handleLogout = async () => {
+    sessionStorage.setItem('isLoggingOut', 'true');
     localStorage.removeItem('userRole');
     localStorage.removeItem('username');
     window.dispatchEvent(new Event('userRoleChanged'));
     await auth.signOut();
     navigate('/');
+    setTimeout(() => {
+      sessionStorage.removeItem('isLoggingOut');
+    }, 1000);
   };
 
   return (
