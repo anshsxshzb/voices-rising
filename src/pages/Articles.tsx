@@ -18,14 +18,7 @@ export default function Articles() {
         </div>
 
         <div className="space-y-12">
-          {!auth.currentUser ? (
-            <div className="text-center py-12 bg-zinc-50 rounded-2xl border border-zinc-200">
-              <p className="text-zinc-600 mb-4">Please log in to view the articles.</p>
-              <Link to="/login" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                Log in
-              </Link>
-            </div>
-          ) : loading ? (
+          {loading ? (
             <div className="flex justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
             </div>
