@@ -64,10 +64,13 @@ export interface Article {
   id: string;
   title: string;
   author: string;
+  authorEmail?: string;
   date: string;
   preview: string;
   content: string;
   published: boolean;
+  status?: 'draft' | 'pending' | 'published' | 'rejected';
+  rejectionReason?: string;
   comments?: Comment[];
   views?: number;
   likedBy?: string[];
@@ -76,6 +79,16 @@ export interface Article {
 export interface ReaderAccount {
   id: string;
   email: string;
+  role?: 'reader' | 'writer';
+}
+
+export interface AppNotification {
+  id: string;
+  userEmail: string;
+  message: string;
+  articleId?: string;
+  read: boolean;
+  createdAt: string;
 }
 
 export interface AccessRequest {
@@ -109,11 +122,13 @@ export function useArticles() {
 
   useEffect(() => {
     let q;
-    const isAuthorized = auth.currentUser && (auth.currentUser.email === 'anshsxshzb@gmail.com' || userRole === 'reader');
+    const isAdmin = auth.currentUser && auth.currentUser.email === 'anshsxshzb@gmail.com';
     
-    if (isAuthorized) {
+    if (isAdmin) {
       q = query(collection(db, 'articles'), orderBy('date', 'desc'));
     } else {
+      // For readers, writers (viewing main feed), and pending users, only show published articles
+      // Note: We use the 'published' boolean for backward compatibility, but could also check status
       q = query(collection(db, 'articles'), where('published', '==', true), orderBy('date', 'desc'));
     }
 
@@ -139,11 +154,51 @@ export function useArticles() {
     });
 
     return unsubscribe;
-  }, [auth.currentUser, userRole]);
+  }, [auth.currentUser?.uid, userRole]);
 
   if (fatalError) {
     throw fatalError;
   }
+
+  return { articles, loading, error };
+}
+
+export function useWriterArticles() {
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!auth.currentUser) {
+      setArticles([]);
+      setLoading(false);
+      return;
+    }
+
+    // Writers fetch their own articles
+    const q = query(
+      collection(db, 'articles'), 
+      where('authorEmail', '==', auth.currentUser.email),
+      orderBy('date', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Article));
+      setArticles(data);
+      setLoading(false);
+    }, (err) => {
+      if (err.message.includes('Missing or insufficient permissions')) {
+        if (sessionStorage.getItem('isLoggingOut') === 'true' || !auth.currentUser) {
+          setLoading(false);
+          return;
+        }
+      }
+      setError(err.message);
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, [auth.currentUser?.uid]);
 
   return { articles, loading, error };
 }
@@ -234,7 +289,8 @@ export function useAccessRequests() {
 export const addArticle = async (article: Omit<Article, 'id'>) => {
   try {
     const newId = Date.now().toString();
-    await setDoc(doc(db, 'articles', newId), { ...article, comments: [], views: 0, likedBy: [] });
+    const status = article.status || (article.published ? 'published' : 'draft');
+    await setDoc(doc(db, 'articles', newId), { ...article, status, comments: [], views: 0, likedBy: [] });
   } catch (err: any) {
     if (err.message?.includes('Missing or insufficient permissions')) {
       handleFirestoreError(err, OperationType.CREATE, 'articles');
@@ -316,10 +372,21 @@ export const toggleLike = async (articleId: string, userEmail: string, currentLi
 
 export const addReader = async (reader: Omit<ReaderAccount, 'id'>) => {
   try {
-    await setDoc(doc(db, 'readers', reader.email), reader);
+    await setDoc(doc(db, 'readers', reader.email), { ...reader, role: reader.role || 'reader' });
   } catch (err: any) {
     if (err.message?.includes('Missing or insufficient permissions')) {
       handleFirestoreError(err, OperationType.CREATE, `readers/${reader.email}`);
+    }
+    throw err;
+  }
+};
+
+export const updateReaderRole = async (email: string, role: 'reader' | 'writer') => {
+  try {
+    await updateDoc(doc(db, 'readers', email), { role });
+  } catch (err: any) {
+    if (err.message?.includes('Missing or insufficient permissions')) {
+      handleFirestoreError(err, OperationType.UPDATE, `readers/${email}`);
     }
     throw err;
   }
@@ -368,3 +435,59 @@ export const denyAccessRequest = async (email: string) => {
     throw err;
   }
 };
+
+export const addNotification = async (notification: Omit<AppNotification, 'id'>) => {
+  try {
+    const newId = Date.now().toString();
+    await setDoc(doc(db, 'notifications', newId), notification);
+  } catch (err: any) {
+    if (err.message?.includes('Missing or insufficient permissions')) {
+      handleFirestoreError(err, OperationType.CREATE, 'notifications');
+    }
+    throw err;
+  }
+};
+
+export const markNotificationRead = async (id: string) => {
+  try {
+    await updateDoc(doc(db, 'notifications', id), { read: true });
+  } catch (err: any) {
+    if (err.message?.includes('Missing or insufficient permissions')) {
+      handleFirestoreError(err, OperationType.UPDATE, `notifications/${id}`);
+    }
+    throw err;
+  }
+};
+
+export function useNotifications() {
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  
+  useEffect(() => {
+    if (!auth.currentUser) {
+      setNotifications([]);
+      return;
+    }
+
+    const q = query(
+      collection(db, 'notifications'), 
+      where('userEmail', '==', auth.currentUser.email),
+      orderBy('createdAt', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AppNotification));
+      setNotifications(data);
+    }, (err) => {
+      if (err.message.includes('Missing or insufficient permissions')) {
+        if (sessionStorage.getItem('isLoggingOut') === 'true' || !auth.currentUser) {
+          return;
+        }
+      }
+      console.error("Error fetching notifications", err);
+    });
+
+    return unsubscribe;
+  }, [auth.currentUser?.uid]);
+
+  return notifications;
+}
