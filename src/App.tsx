@@ -16,6 +16,7 @@ import ArticleDetail from './pages/ArticleDetail';
 import About from './pages/About';
 import Login from './pages/Login';
 import Admin from './pages/Admin';
+import WriterDashboard from './pages/WriterDashboard';
 import ErrorBoundary from './components/ErrorBoundary';
 
 export default function App() {
@@ -37,6 +38,7 @@ export default function App() {
           setIsAuthReady(true);
         } else {
           let isReader = false;
+          let readerRole = 'reader';
           let isPending = false;
           let isDenied = false;
           let initReader = false;
@@ -46,7 +48,7 @@ export default function App() {
             if (!initReader || !initPending) return;
             
             if (isReader) {
-              localStorage.setItem('userRole', 'reader');
+              localStorage.setItem('userRole', readerRole);
               window.dispatchEvent(new Event('userRoleChanged'));
             } else if (isPending) {
               localStorage.setItem('userRole', 'pending');
@@ -67,6 +69,9 @@ export default function App() {
 
           unsubReader = onSnapshot(doc(db, 'readers', email!), (docSnap) => {
             isReader = docSnap.exists();
+            if (isReader) {
+              readerRole = docSnap.data()?.role || 'reader';
+            }
             initReader = true;
             updateRole();
             if (initReader && initPending) setIsAuthReady(true);
@@ -131,6 +136,7 @@ export default function App() {
               <Route path="/about" element={<About />} />
               <Route path="/login" element={<Login />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/writer" element={<WriterDashboard />} />
             </Routes>
           </main>
           <Footer />
