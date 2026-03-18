@@ -73,7 +73,7 @@ export default function Login() {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-      const email = result.user.email;
+      const email = result.user.email?.toLowerCase();
       
       if (email === 'anshsxshzb@gmail.com') {
         localStorage.setItem('userRole', 'admin');
@@ -83,14 +83,14 @@ export default function Login() {
       } else {
         // Verify reader exists in readers collection
         try {
-          const readerDoc = await getDoc(doc(db, 'readers', email!));
+          const readerDoc = await getDoc(doc(db, 'readers', email!.toLowerCase()));
           if (readerDoc.exists()) {
             localStorage.setItem('userRole', 'reader');
             localStorage.setItem('username', result.user.displayName || email!);
             window.dispatchEvent(new Event('userRoleChanged'));
             navigate('/articles');
           } else {
-            const requestDoc = await getDoc(doc(db, 'access_requests', email!));
+            const requestDoc = await getDoc(doc(db, 'access_requests', email!.toLowerCase()));
             if (requestDoc.exists()) {
               const data = requestDoc.data();
               if (data && data.status === 'denied') {
@@ -107,7 +107,7 @@ export default function Login() {
             } else {
               // Create an access request for the admin to approve
               await addAccessRequest({
-                email: email!,
+                email: email!.toLowerCase(),
                 name: result.user.displayName || 'Anonymous',
                 date: new Date().toISOString(),
                 status: 'pending'
