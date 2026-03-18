@@ -123,6 +123,10 @@ export function useArticles() {
       setLoading(false);
     }, (err) => {
       if (err.message.includes('Missing or insufficient permissions')) {
+        if (sessionStorage.getItem('isLoggingOut') === 'true' || !auth.currentUser) {
+          setLoading(false);
+          return;
+        }
         try {
           handleFirestoreError(err, OperationType.LIST, 'articles');
         } catch (e) {
@@ -135,7 +139,7 @@ export function useArticles() {
     });
 
     return unsubscribe;
-  }, [auth.currentUser]);
+  }, [auth.currentUser, userRole]);
 
   if (fatalError) {
     throw fatalError;
@@ -162,6 +166,10 @@ export function useReaders() {
       setLoading(false);
     }, (err) => {
       if (err.message.includes('Missing or insufficient permissions')) {
+        if (sessionStorage.getItem('isLoggingOut') === 'true' || !auth.currentUser) {
+          setLoading(false);
+          return;
+        }
         try {
           handleFirestoreError(err, OperationType.LIST, 'readers');
         } catch (e) {
@@ -199,6 +207,10 @@ export function useAccessRequests() {
       setLoading(false);
     }, (err) => {
       if (err.message.includes('Missing or insufficient permissions')) {
+        if (sessionStorage.getItem('isLoggingOut') === 'true' || !auth.currentUser) {
+          setLoading(false);
+          return;
+        }
         try {
           handleFirestoreError(err, OperationType.LIST, 'access_requests');
         } catch (e) {
