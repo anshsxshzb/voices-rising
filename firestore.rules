@@ -26,10 +26,15 @@ service cloud.firestore {
       // Only admin can create or delete articles
       allow create, delete: if isAdmin();
       
-      // Admin can update anything. Readers can only update the comments field.
+      // Admin can update anything. 
+      // Readers can update comments, likedBy, and views.
+      // Anyone can increment views.
       allow update: if isAdmin() || (
         isReader() && 
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comments'])
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comments', 'likedBy', 'views'])
+      ) || (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views']) &&
+        request.resource.data.views == (resource.data.get('views', 0) + 1)
       );
     }
     
