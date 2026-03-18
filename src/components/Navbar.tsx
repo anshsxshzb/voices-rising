@@ -1,14 +1,16 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { LogOut, PenTool, User } from 'lucide-react';
 import { auth } from '../lib/firebase';
+import { useUserRole } from '../lib/storage';
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const userRole = localStorage.getItem('userRole');
+  const userRole = useUserRole();
 
   const handleLogout = async () => {
     localStorage.removeItem('userRole');
     localStorage.removeItem('username');
+    window.dispatchEvent(new Event('userRoleChanged'));
     await auth.signOut();
     navigate('/');
   };
