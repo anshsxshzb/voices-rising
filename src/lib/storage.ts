@@ -86,6 +86,7 @@ export interface AppNotification {
   id: string;
   userEmail: string;
   message: string;
+  type?: 'approved' | 'rejected' | 'info';
   articleId?: string;
   read: boolean;
   createdAt: string;
@@ -122,7 +123,7 @@ export function useArticles() {
 
   useEffect(() => {
     let q;
-    const isAdmin = auth.currentUser && auth.currentUser.email === 'anshsxshzb@gmail.com';
+    const isAdmin = auth.currentUser && auth.currentUser.email?.toLowerCase() === 'anshsxshzb@gmail.com';
     
     if (isAdmin) {
       q = query(collection(db, 'articles'), orderBy('date', 'desc'));
@@ -178,7 +179,7 @@ export function useWriterArticles() {
     // Writers fetch their own articles
     const q = query(
       collection(db, 'articles'), 
-      where('authorEmail', '==', auth.currentUser.email),
+      where('authorEmail', '==', auth.currentUser.email?.toLowerCase()),
       orderBy('date', 'desc')
     );
 
@@ -209,7 +210,7 @@ export function useReaders() {
   const [fatalError, setFatalError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!auth.currentUser || auth.currentUser.email !== 'anshsxshzb@gmail.com') {
+    if (!auth.currentUser || auth.currentUser.email?.toLowerCase() !== 'anshsxshzb@gmail.com') {
       setReaders([]);
       setLoading(false);
       return;
@@ -250,7 +251,7 @@ export function useAccessRequests() {
   const [fatalError, setFatalError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!auth.currentUser || auth.currentUser.email !== 'anshsxshzb@gmail.com') {
+    if (!auth.currentUser || auth.currentUser.email?.toLowerCase() !== 'anshsxshzb@gmail.com') {
       setRequests([]);
       setLoading(false);
       return;
@@ -470,7 +471,7 @@ export function useNotifications() {
 
     const q = query(
       collection(db, 'notifications'), 
-      where('userEmail', '==', auth.currentUser.email),
+      where('userEmail', '==', auth.currentUser.email?.toLowerCase()),
       orderBy('createdAt', 'desc')
     );
 
