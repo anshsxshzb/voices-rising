@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useArticles } from '../lib/storage';
-import { Calendar, User, ArrowRight } from 'lucide-react';
+import { Calendar, User, ArrowRight, Eye, Heart } from 'lucide-react';
 import { auth } from '../lib/firebase';
 
 export default function Articles() {
@@ -38,6 +38,16 @@ export default function Articles() {
                     <time dateTime={article.date}>
                       {new Date(article.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
                     </time>
+                  </div>
+                  <span>&bull;</span>
+                  <div className="flex items-center gap-1" title="Views">
+                    <Eye className="h-4 w-4" />
+                    <span>{article.views || 0}</span>
+                  </div>
+                  <span>&bull;</span>
+                  <div className="flex items-center gap-1" title="Likes">
+                    <Heart className="h-4 w-4" />
+                    <span>{article.likedBy?.length || 0}</span>
                   </div>
                 </div>
                 
