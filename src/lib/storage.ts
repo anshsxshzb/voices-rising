@@ -81,6 +81,21 @@ export interface AccessRequest {
   email: string;
   name: string;
   date: string;
+  status?: 'pending' | 'denied';
+}
+
+export function useUserRole() {
+  const [role, setRole] = useState<string | null>(localStorage.getItem('userRole'));
+
+  useEffect(() => {
+    const handleRoleChange = () => {
+      setRole(localStorage.getItem('userRole'));
+    };
+    window.addEventListener('userRoleChanged', handleRoleChange);
+    return () => window.removeEventListener('userRoleChanged', handleRoleChange);
+  }, []);
+
+  return role;
 }
 
 export function useArticles() {
@@ -88,10 +103,11 @@ export function useArticles() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fatalError, setFatalError] = useState<Error | null>(null);
+  const userRole = useUserRole();
 
   useEffect(() => {
     let q;
-    const isAuthorized = auth.currentUser && (auth.currentUser.email === 'anshsxshzb@gmail.com' || localStorage.getItem('userRole') === 'reader');
+    const isAuthorized = auth.currentUser && (auth.currentUser.email === 'anshsxshzb@gmail.com' || userRole === 'reader');
     
     if (isAuthorized) {
       q = query(collection(db, 'articles'), orderBy('date', 'desc'));
@@ -177,7 +193,7 @@ export function useAccessRequests() {
 
     const unsubscribe = onSnapshot(collection(db, 'access_requests'), (snapshot) => {
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AccessRequest));
-      setRequests(data);
+      setRequests(data.filter(r => r.status !== 'denied'));
       setLoading(false);
     }, (err) => {
       if (err.message.includes('Missing or insufficient permissions')) {
@@ -292,6 +308,17 @@ export const deleteAccessRequest = async (id: string) => {
   } catch (err: any) {
     if (err.message?.includes('Missing or insufficient permissions')) {
       handleFirestoreError(err, OperationType.DELETE, `access_requests/${id}`);
+    }
+    throw err;
+  }
+};
+
+export const denyAccessRequest = async (email: string) => {
+  try {
+    await updateDoc(doc(db, 'access_requests', email), { status: 'denied' });
+  } catch (err: any) {
+    if (err.message?.includes('Missing or insufficient permissions')) {
+      handleFirestoreError(err, OperationType.UPDATE, `access_requests/${email}`);
     }
     throw err;
   }
