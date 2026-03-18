@@ -7,18 +7,18 @@ service cloud.firestore {
     }
     
     function isAdmin() {
-      return isAuthenticated() && request.auth.token.email == 'anshsxshzb@gmail.com';
+      return isAuthenticated() && request.auth.token.email.lower() == 'anshsxshzb@gmail.com';
     }
     
     function isReader() {
       return isAuthenticated() && 
-             exists(/databases/$(database)/documents/readers/$(request.auth.token.email));
+             exists(/databases/$(database)/documents/readers/$(request.auth.token.email.lower()));
     }
 
     function isWriter() {
       return isAuthenticated() && 
-             exists(/databases/$(database)/documents/readers/$(request.auth.token.email)) &&
-             get(/databases/$(database)/documents/readers/$(request.auth.token.email)).data.role == 'writer';
+             exists(/databases/$(database)/documents/readers/$(request.auth.token.email.lower())) &&
+             get(/databases/$(database)/documents/readers/$(request.auth.token.email.lower())).data.role == 'writer';
     }
     
     function isAuthorized() {
@@ -33,7 +33,7 @@ service cloud.firestore {
       // Admin can create anything. Writers can create if they set themselves as author and status is draft.
       allow create: if isAdmin() || (
         isWriter() && 
-        request.resource.data.authorEmail == request.auth.token.email &&
+        request.resource.data.authorEmail == request.auth.token.email.lower() &&
         request.resource.data.status == 'draft' &&
         request.resource.data.published == false
       );
@@ -41,7 +41,7 @@ service cloud.firestore {
       // Admin can delete anything. Writers can delete their own drafts or rejected articles.
       allow delete: if isAdmin() || (
         isWriter() && 
-        resource.data.authorEmail == request.auth.token.email &&
+        resource.data.authorEmail == request.auth.token.email.lower() &&
         resource.data.status != 'published' && resource.data.status != 'pending'
       );
       
@@ -57,8 +57,8 @@ service cloud.firestore {
         request.resource.data.views == (resource.data.get('views', 0) + 1)
       ) || (
         isWriter() && 
-        resource.data.authorEmail == request.auth.token.email &&
-        request.resource.data.authorEmail == request.auth.token.email &&
+        resource.data.authorEmail == request.auth.token.email.lower() &&
+        request.resource.data.authorEmail == request.auth.token.email.lower() &&
         (
           // Allow editing if it's not published and they aren't trying to publish it directly
           (resource.data.status != 'published' && request.resource.data.status != 'published' && request.resource.data.published == false) ||
@@ -72,24 +72,24 @@ service cloud.firestore {
       // Admin can do everything
       allow read, write: if isAdmin();
       // Readers/Writers can read their own reader document
-      allow read: if isAuthenticated() && request.auth.token.email == readerEmail;
+      allow read: if isAuthenticated() && request.auth.token.email.lower() == readerEmail;
     }
 
     match /access_requests/{email} {
       // Admin can read, update, and delete requests
       allow read, update, delete: if isAdmin();
       // Any authenticated user can read and create a request for themselves
-      allow read, create: if isAuthenticated() && request.auth.token.email == email;
+      allow read, create: if isAuthenticated() && request.auth.token.email.lower() == email;
     }
 
     match /notifications/{notificationId} {
       // Admin can create/read/update/delete
       allow read, write: if isAdmin();
       // Users can read and update (mark as read) their own notifications
-      allow read: if isAuthenticated() && resource.data.userEmail == request.auth.token.email;
+      allow read: if isAuthenticated() && resource.data.userEmail == request.auth.token.email.lower();
       allow update: if isAuthenticated() && 
-                    resource.data.userEmail == request.auth.token.email &&
-                    request.resource.data.userEmail == request.auth.token.email;
+                    resource.data.userEmail == request.auth.token.email.lower() &&
+                    request.resource.data.userEmail == request.auth.token.email.lower();
     }
   }
 }
