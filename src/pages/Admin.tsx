@@ -1,22 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useArticles, useReaders, useAccessRequests, addArticle, updateArticle, deleteArticle, Article, addReader, deleteReader, deleteAccessRequest, denyAccessRequest } from '../lib/storage';
-import { Edit2, Trash2, Plus, Check, X, Users, FileText, Bell } from 'lucide-react';
+import { useArticles, useReaders, useAccessRequests, addArticle, updateArticle, deleteArticle, Article, addReader, deleteReader, deleteAccessRequest, denyAccessRequest, updateReaderRole, addNotification } from '../lib/storage';
+import { Edit2, Trash2, Plus, Check, X, Users, FileText, Bell, AlertCircle } from 'lucide-react';
 
 export default function Admin() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'articles' | 'readers' | 'requests'>('articles');
+  const [articleFilter, setArticleFilter] = useState<'all' | 'published' | 'pending' | 'draft' | 'rejected'>('all');
   
   // Articles State
   const { articles, loading: articlesLoading } = useArticles();
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Article>>({});
   const [isAdding, setIsAdding] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const [rejectingArticleId, setRejectingArticleId] = useState<string | null>(null);
 
   // Readers State
   const { readers, loading: readersLoading } = useReaders();
   const [isAddingReader, setIsAddingReader] = useState(false);
-  const [readerForm, setReaderForm] = useState({ email: '' });
+  const [readerForm, setReaderForm] = useState({ email: '', role: 'reader' as 'reader' | 'writer' });
   const [readerError, setReaderError] = useState('');
 
   // Requests State
@@ -50,13 +53,15 @@ export default function Admin() {
 
   const handleAdd = async () => {
     if (editForm.title && editForm.content && editForm.author) {
+      const isPublished = editForm.published || false;
       await addArticle({
         title: editForm.title || '',
         content: editForm.content || '',
         author: editForm.author || '',
         date: new Date().toISOString().split('T')[0],
         preview: editForm.preview || editForm.content?.substring(0, 150) + '...',
-        published: editForm.published || false,
+        published: isPublished,
+        status: isPublished ? 'published' : 'draft',
       });
       setIsAdding(false);
       setEditForm({});
@@ -140,9 +145,24 @@ export default function Admin() {
 
         {activeTab === 'articles' && (
           <>
-            <div className="flex justify-end mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+              <div className="flex space-x-2 overflow-x-auto pb-2 sm:pb-0">
+                {(['all', 'published', 'pending', 'draft', 'rejected'] as const).map(filter => (
+                  <button
+                    key={filter}
+                    onClick={() => setArticleFilter(filter)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize whitespace-nowrap ${
+                      articleFilter === filter 
+                        ? 'bg-zinc-800 text-white' 
+                        : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+                    }`}
+                  >
+                    {filter}
+                  </button>
+                ))}
+              </div>
               <button
-                onClick={() => { setIsAdding(true); setEditForm({ published: false }); }}
+                onClick={() => { setIsAdding(true); setEditForm({ published: false, status: 'draft' }); }}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -197,7 +217,7 @@ export default function Admin() {
                       id="published"
                       type="checkbox"
                       checked={editForm.published || false}
-                      onChange={e => setEditForm({ ...editForm, published: e.target.checked })}
+                      onChange={e => setEditForm({ ...editForm, published: e.target.checked, status: e.target.checked ? 'published' : 'draft' })}
                       className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-zinc-300 rounded"
                     />
                     <label htmlFor="published" className="ml-2 block text-sm text-zinc-900">
@@ -236,17 +256,38 @@ export default function Admin() {
                 <tbody className="bg-white divide-y divide-zinc-200">
                   {articlesLoading ? (
                     <tr><td colSpan={5} className="px-6 py-4 text-center text-sm text-zinc-500">Loading...</td></tr>
-                  ) : articles.map((article) => (
+                  ) : filteredArticles.map((article) => {
+                    const status = article.status || (article.published ? 'published' : 'draft');
+                    return (
                     <tr key={article.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900">{article.title}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900">
+                        {article.title}
+                        {status === 'rejected' && article.rejectionReason && (
+                          <p className="text-xs text-red-500 mt-1 truncate max-w-xs">Reason: {article.rejectionReason}</p>
+                        )}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">{article.author}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">{article.date}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${article.published ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                          {article.published ? 'Published' : 'Draft'}
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                          ${status === 'published' ? 'bg-green-100 text-green-800' : 
+                            status === 'pending' ? 'bg-blue-100 text-blue-800' :
+                            status === 'rejected' ? 'bg-red-100 text-red-800' :
+                            'bg-yellow-100 text-yellow-800'}`}>
+                          {status.charAt(0).toUpperCase() + status.slice(1)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        {status === 'pending' && (
+                          <>
+                            <button onClick={() => handleApproveArticle(article)} className="text-green-600 hover:text-green-900 mr-3" title="Approve">
+                              <Check className="h-4 w-4" />
+                            </button>
+                            <button onClick={() => setRejectingArticleId(article.id)} className="text-red-600 hover:text-red-900 mr-4" title="Reject">
+                              <X className="h-4 w-4" />
+                            </button>
+                          </>
+                        )}
                         <button onClick={() => handleEdit(article)} className="text-indigo-600 hover:text-indigo-900 mr-4">
                           <Edit2 className="h-4 w-4" />
                         </button>
@@ -255,10 +296,29 @@ export default function Admin() {
                         </button>
                       </td>
                     </tr>
-                  ))}
+                  )})}
                 </tbody>
               </table>
             </div>
+
+            {rejectingArticleId && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+                  <h3 className="text-lg font-bold mb-4">Reject Article</h3>
+                  <textarea
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    placeholder="Provide a reason for rejection..."
+                    className="w-full border rounded-md p-2 mb-4"
+                    rows={3}
+                  />
+                  <div className="flex justify-end space-x-3">
+                    <button onClick={() => { setRejectingArticleId(null); setRejectReason(''); }} className="px-4 py-2 text-zinc-600 hover:text-zinc-800">Cancel</button>
+                    <button onClick={() => handleRejectArticle(articles.find(a => a.id === rejectingArticleId)!)} className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Reject</button>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         )}
 
@@ -288,6 +348,17 @@ export default function Admin() {
                       className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
                     />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-zinc-700">Role</label>
+                    <select
+                      value={readerForm.role}
+                      onChange={e => setReaderForm({ ...readerForm, role: e.target.value as 'reader' | 'writer' })}
+                      className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border bg-white"
+                    >
+                      <option value="reader">Reader</option>
+                      <option value="writer">Writer</option>
+                    </select>
+                  </div>
                   <div className="flex justify-end gap-3 mt-6">
                     <button
                       onClick={() => { setIsAddingReader(false); setReaderForm({ email: '' }); setReaderError(''); }}
@@ -311,15 +382,26 @@ export default function Admin() {
                 <thead className="bg-zinc-50">
                   <tr>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Email</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Role</th>
                     <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-zinc-200">
                   {readersLoading ? (
-                    <tr><td colSpan={2} className="px-6 py-4 text-center text-sm text-zinc-500">Loading...</td></tr>
+                    <tr><td colSpan={3} className="px-6 py-4 text-center text-sm text-zinc-500">Loading...</td></tr>
                   ) : readers.map((reader) => (
                     <tr key={reader.id}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900">{reader.email}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">
+                        <select
+                          value={reader.role || 'reader'}
+                          onChange={(e) => updateReaderRole(reader.email, e.target.value as 'reader' | 'writer')}
+                          className="rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-1 border bg-white"
+                        >
+                          <option value="reader">Reader</option>
+                          <option value="writer">Writer</option>
+                        </select>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button onClick={() => handleDeleteReader(reader.id)} className="text-red-600 hover:text-red-900">
                           <Trash2 className="h-4 w-4" />
