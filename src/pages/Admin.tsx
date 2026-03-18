@@ -70,14 +70,48 @@ export default function Admin() {
     }
   };
 
+  const handleApproveArticle = async (article: Article) => {
+    await updateArticle(article.id, { status: 'published', published: true });
+    if (article.authorEmail) {
+      await addNotification({
+        userEmail: article.authorEmail,
+        message: `Your article "${article.title}" has been approved and published!`,
+        type: 'approved',
+        articleId: article.id,
+        read: false,
+        createdAt: new Date().toISOString()
+      });
+    }
+  };
+
+  const handleRejectArticle = async (article: Article) => {
+    if (!rejectReason.trim()) {
+      alert('Please provide a reason for rejection.');
+      return;
+    }
+    await updateArticle(article.id, { status: 'rejected', rejectionReason: rejectReason });
+    if (article.authorEmail) {
+      await addNotification({
+        userEmail: article.authorEmail,
+        message: `Your article "${article.title}" was rejected. Reason: ${rejectReason}`,
+        type: 'rejected',
+        articleId: article.id,
+        read: false,
+        createdAt: new Date().toISOString()
+      });
+    }
+    setRejectingArticleId(null);
+    setRejectReason('');
+  };
+
   // --- Reader Handlers ---
   const handleAddReader = async () => {
     setReaderError('');
     if (readerForm.email) {
       try {
-        await addReader(readerForm);
+        await addReader({ ...readerForm, email: readerForm.email.toLowerCase() });
         setIsAddingReader(false);
-        setReaderForm({ email: '' });
+        setReaderForm({ email: '', role: 'reader' });
       } catch (err: any) {
         console.error(err);
         setReaderError(err.message || 'Failed to add reader.');
@@ -96,8 +130,8 @@ export default function Admin() {
   // --- Request Handlers ---
   const handleApproveRequest = async (email: string) => {
     try {
-      await addReader({ email });
-      await deleteAccessRequest(email);
+      await addReader({ email: email.toLowerCase() });
+      await deleteAccessRequest(email.toLowerCase());
     } catch (err) {
       console.error('Failed to approve request:', err);
       alert('Failed to approve request.');
@@ -106,9 +140,15 @@ export default function Admin() {
 
   const handleDenyRequest = async (email: string) => {
     if (window.confirm('Are you sure you want to deny this request?')) {
-      await denyAccessRequest(email);
+      await denyAccessRequest(email.toLowerCase());
     }
   };
+
+  const filteredArticles = articles.filter(article => {
+    if (articleFilter === 'all') return true;
+    const status = article.status || (article.published ? 'published' : 'draft');
+    return status === articleFilter;
+  });
 
   return (
     <div className="bg-zinc-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
@@ -361,7 +401,7 @@ export default function Admin() {
                   </div>
                   <div className="flex justify-end gap-3 mt-6">
                     <button
-                      onClick={() => { setIsAddingReader(false); setReaderForm({ email: '' }); setReaderError(''); }}
+                      onClick={() => { setIsAddingReader(false); setReaderForm({ email: '', role: 'reader' }); setReaderError(''); }}
                       className="inline-flex items-center px-4 py-2 border border-zinc-300 shadow-sm text-sm font-medium rounded-md text-zinc-700 bg-white hover:bg-zinc-50"
                     >
                       <X className="h-4 w-4 mr-2" /> Cancel
@@ -395,7 +435,7 @@ export default function Admin() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">
                         <select
                           value={reader.role || 'reader'}
-                          onChange={(e) => updateReaderRole(reader.email, e.target.value as 'reader' | 'writer')}
+                          onChange={(e) => updateReaderRole(reader.email.toLowerCase(), e.target.value as 'reader' | 'writer')}
                           className="rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-1 border bg-white"
                         >
                           <option value="reader">Reader</option>
