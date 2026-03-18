@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useArticles, useReaders, useAccessRequests, addArticle, updateArticle, deleteArticle, Article, addReader, deleteReader, deleteAccessRequest } from '../lib/storage';
+import { useArticles, useReaders, useAccessRequests, addArticle, updateArticle, deleteArticle, Article, addReader, deleteReader, deleteAccessRequest, denyAccessRequest } from '../lib/storage';
 import { Edit2, Trash2, Plus, Check, X, Users, FileText, Bell } from 'lucide-react';
 
 export default function Admin() {
@@ -101,7 +101,7 @@ export default function Admin() {
 
   const handleDenyRequest = async (email: string) => {
     if (window.confirm('Are you sure you want to deny this request?')) {
-      await deleteAccessRequest(email);
+      await denyAccessRequest(email);
     }
   };
 
