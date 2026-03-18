@@ -14,34 +14,64 @@ service cloud.firestore {
       return isAuthenticated() && 
              exists(/databases/$(database)/documents/readers/$(request.auth.token.email));
     }
+
+    function isWriter() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/readers/$(request.auth.token.email)) &&
+             get(/databases/$(database)/documents/readers/$(request.auth.token.email)).data.role == 'writer';
+    }
     
     function isAuthorized() {
-      return isAdmin() || isReader();
+      return isAdmin() || isReader() || isWriter();
     }
 
     match /articles/{articleId} {
-      // Allow read if article is published, or if user is authorized (admin/reader)
-      allow read: if resource.data.published == true || isAuthorized();
+      // Allow read if article is published, or if user is authorized (admin/reader/writer)
+      // Note: In the UI, readers only query published articles. Writers query published + their own.
+      allow read: if resource.data.published == true || resource.data.status == 'published' || isAuthorized();
       
-      // Only admin can create or delete articles
-      allow create, delete: if isAdmin();
+      // Admin can create anything. Writers can create if they set themselves as author and status is draft.
+      allow create: if isAdmin() || (
+        isWriter() && 
+        request.resource.data.authorEmail == request.auth.token.email &&
+        request.resource.data.status == 'draft' &&
+        request.resource.data.published == false
+      );
+      
+      // Admin can delete anything. Writers can delete their own drafts or rejected articles.
+      allow delete: if isAdmin() || (
+        isWriter() && 
+        resource.data.authorEmail == request.auth.token.email &&
+        resource.data.status != 'published' && resource.data.status != 'pending'
+      );
       
       // Admin can update anything. 
       // Readers can update comments, likedBy, and views.
       // Anyone can increment views.
+      // Writers can update their own articles if they are not published, or if they are just editing content of a published article.
       allow update: if isAdmin() || (
         isReader() && 
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['comments', 'likedBy', 'views'])
       ) || (
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views']) &&
         request.resource.data.views == (resource.data.get('views', 0) + 1)
+      ) || (
+        isWriter() && 
+        resource.data.authorEmail == request.auth.token.email &&
+        request.resource.data.authorEmail == request.auth.token.email &&
+        (
+          // Allow editing if it's not published and they aren't trying to publish it directly
+          (resource.data.status != 'published' && request.resource.data.status != 'published' && request.resource.data.published == false) ||
+          // Allow editing if it IS published, but they aren't changing the status or published flag
+          (resource.data.status == 'published' && request.resource.data.status == 'published' && request.resource.data.published == resource.data.published)
+        )
       );
     }
     
     match /readers/{readerEmail} {
       // Admin can do everything
       allow read, write: if isAdmin();
-      // Readers can read their own reader document
+      // Readers/Writers can read their own reader document
       allow read: if isAuthenticated() && request.auth.token.email == readerEmail;
     }
 
@@ -50,6 +80,16 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
       // Any authenticated user can read and create a request for themselves
       allow read, create: if isAuthenticated() && request.auth.token.email == email;
+    }
+
+    match /notifications/{notificationId} {
+      // Admin can create/read/update/delete
+      allow read, write: if isAdmin();
+      // Users can read and update (mark as read) their own notifications
+      allow read: if isAuthenticated() && resource.data.userEmail == request.auth.token.email;
+      allow update: if isAuthenticated() && 
+                    resource.data.userEmail == request.auth.token.email &&
+                    request.resource.data.userEmail == request.auth.token.email;
     }
   }
 }
