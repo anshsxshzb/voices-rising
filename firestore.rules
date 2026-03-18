@@ -41,10 +41,10 @@ service cloud.firestore {
     }
 
     match /access_requests/{email} {
-      // Admin can read and delete requests
-      allow read, delete: if isAdmin();
-      // Any authenticated user can create a request for themselves
-      allow create: if isAuthenticated() && request.auth.token.email == email;
+      // Admin can read, update, and delete requests
+      allow read, update, delete: if isAdmin();
+      // Any authenticated user can read and create a request for themselves
+      allow read, create: if isAuthenticated() && request.auth.token.email == email;
     }
   }
 }
