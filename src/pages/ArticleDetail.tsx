@@ -148,7 +148,7 @@ export default function ArticleDetail() {
             </div>
           ) : (
             <div className="bg-zinc-50 rounded-lg p-6 text-center mb-10 border border-zinc-200">
-              <p className="text-zinc-600 mb-4">You must be logged in to leave a comment or share this article.</p>
+              <p className="text-zinc-600 mb-4">You must be logged in to leave a comment.</p>
               <Link to="/login" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
                 Log in
               </Link>
