@@ -6,7 +6,8 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { auth, db } from './lib/firebase';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -21,10 +22,96 @@ export default function App() {
   const [isAuthReady, setIsAuthReady] = useState(false);
 
   useEffect(() => {
+    let unsubReader: (() => void) | undefined;
+    let unsubRequest: (() => void) | undefined;
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsAuthReady(true);
+      if (unsubReader) unsubReader();
+      if (unsubRequest) unsubRequest();
+
+      if (user) {
+        const email = user.email;
+        if (email === 'anshsxshzb@gmail.com') {
+          localStorage.setItem('userRole', 'admin');
+          window.dispatchEvent(new Event('userRoleChanged'));
+          setIsAuthReady(true);
+        } else {
+          let isReader = false;
+          let isPending = false;
+          let isDenied = false;
+          let initReader = false;
+          let initPending = false;
+
+          const updateRole = () => {
+            if (!initReader || !initPending) return;
+            
+            if (isReader) {
+              localStorage.setItem('userRole', 'reader');
+              window.dispatchEvent(new Event('userRoleChanged'));
+            } else if (isPending) {
+              localStorage.setItem('userRole', 'pending');
+              window.dispatchEvent(new Event('userRoleChanged'));
+            } else if (isDenied) {
+              const currentRole = localStorage.getItem('userRole');
+              if (currentRole === 'pending') {
+                alert("Your access request was denied by the admin.");
+                auth.signOut();
+              }
+              localStorage.removeItem('userRole');
+              window.dispatchEvent(new Event('userRoleChanged'));
+            } else {
+              localStorage.removeItem('userRole');
+              window.dispatchEvent(new Event('userRoleChanged'));
+            }
+          };
+
+          unsubReader = onSnapshot(doc(db, 'readers', email!), (docSnap) => {
+            isReader = docSnap.exists();
+            initReader = true;
+            updateRole();
+            if (initReader && initPending) setIsAuthReady(true);
+          }, (err) => {
+            console.error(err);
+            initReader = true;
+            if (initReader && initPending) setIsAuthReady(true);
+          });
+
+          unsubRequest = onSnapshot(doc(db, 'access_requests', email!), (docSnap) => {
+            if (docSnap.exists()) {
+              const data = docSnap.data();
+              if (data && data.status === 'denied') {
+                isPending = false;
+                isDenied = true;
+              } else {
+                isPending = true;
+                isDenied = false;
+              }
+            } else {
+              isPending = false;
+              isDenied = false;
+            }
+            initPending = true;
+            updateRole();
+            if (initReader && initPending) setIsAuthReady(true);
+          }, (err) => {
+            console.error(err);
+            initPending = true;
+            if (initReader && initPending) setIsAuthReady(true);
+          });
+        }
+      } else {
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('username');
+        window.dispatchEvent(new Event('userRoleChanged'));
+        setIsAuthReady(true);
+      }
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribe();
+      if (unsubReader) unsubReader();
+      if (unsubRequest) unsubRequest();
+    };
   }, []);
 
   if (!isAuthReady) {
