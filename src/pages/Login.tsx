@@ -78,6 +78,7 @@ export default function Login() {
       if (email === 'anshsxshzb@gmail.com') {
         localStorage.setItem('userRole', 'admin');
         localStorage.setItem('username', result.user.displayName || 'Admin');
+        window.dispatchEvent(new Event('userRoleChanged'));
         navigate('/admin');
       } else {
         // Verify reader exists in readers collection
@@ -86,17 +87,36 @@ export default function Login() {
           if (readerDoc.exists()) {
             localStorage.setItem('userRole', 'reader');
             localStorage.setItem('username', result.user.displayName || email!);
+            window.dispatchEvent(new Event('userRoleChanged'));
             navigate('/articles');
           } else {
-            // Create an access request for the admin to approve
-            await addAccessRequest({
-              email: email!,
-              name: result.user.displayName || 'Anonymous',
-              date: new Date().toISOString()
-            });
-            localStorage.setItem('userRole', 'pending');
-            localStorage.setItem('username', result.user.displayName || email!);
-            navigate('/articles');
+            const requestDoc = await getDoc(doc(db, 'access_requests', email!));
+            if (requestDoc.exists()) {
+              const data = requestDoc.data();
+              if (data && data.status === 'denied') {
+                alert("Your access request was denied by the admin.");
+                await auth.signOut();
+                setLoading(false);
+                return;
+              } else {
+                localStorage.setItem('userRole', 'pending');
+                localStorage.setItem('username', result.user.displayName || email!);
+                window.dispatchEvent(new Event('userRoleChanged'));
+                navigate('/articles');
+              }
+            } else {
+              // Create an access request for the admin to approve
+              await addAccessRequest({
+                email: email!,
+                name: result.user.displayName || 'Anonymous',
+                date: new Date().toISOString(),
+                status: 'pending'
+              });
+              localStorage.setItem('userRole', 'pending');
+              localStorage.setItem('username', result.user.displayName || email!);
+              window.dispatchEvent(new Event('userRoleChanged'));
+              navigate('/articles');
+            }
           }
         } catch (err: any) {
           if (err.message?.includes('Missing or insufficient permissions')) {
