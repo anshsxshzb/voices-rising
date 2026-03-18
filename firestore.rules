@@ -20,8 +20,8 @@ service cloud.firestore {
     }
 
     match /articles/{articleId} {
-      // Require authentication for all access
-      allow read: if isAuthorized();
+      // Allow read if article is published, or if user is authorized (admin/reader)
+      allow read: if resource.data.published == true || isAuthorized();
       
       // Only admin can create or delete articles
       allow create, delete: if isAdmin();
@@ -38,6 +38,13 @@ service cloud.firestore {
       allow read, write: if isAdmin();
       // Readers can read their own reader document
       allow read: if isAuthenticated() && request.auth.token.email == readerEmail;
+    }
+
+    match /access_requests/{email} {
+      // Admin can read and delete requests
+      allow read, delete: if isAdmin();
+      // Any authenticated user can create a request for themselves
+      allow create: if isAuthenticated() && request.auth.token.email == email;
     }
   }
 }
