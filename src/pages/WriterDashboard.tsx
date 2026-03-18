@@ -50,7 +50,7 @@ export default function WriterDashboard() {
   const handleAdd = async () => {
     if (editForm.title && editForm.content) {
       const username = localStorage.getItem('username') || 'Writer';
-      const email = auth.currentUser?.email || '';
+      const email = auth.currentUser?.email?.toLowerCase() || '';
       
       await addArticle({
         title: editForm.title || '',
