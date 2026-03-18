@@ -69,6 +69,8 @@ export interface Article {
   content: string;
   published: boolean;
   comments?: Comment[];
+  views?: number;
+  likedBy?: string[];
 }
 
 export interface ReaderAccount {
@@ -220,7 +222,7 @@ export function useAccessRequests() {
 export const addArticle = async (article: Omit<Article, 'id'>) => {
   try {
     const newId = Date.now().toString();
-    await setDoc(doc(db, 'articles', newId), { ...article, comments: [] });
+    await setDoc(doc(db, 'articles', newId), { ...article, comments: [], views: 0, likedBy: [] });
   } catch (err: any) {
     if (err.message?.includes('Missing or insufficient permissions')) {
       handleFirestoreError(err, OperationType.CREATE, 'articles');
@@ -260,6 +262,37 @@ export const addComment = async (articleId: string, comment: Omit<Comment, 'id' 
     };
     await updateDoc(doc(db, 'articles', articleId), {
       comments: [...currentComments, newComment]
+    });
+  } catch (err: any) {
+    if (err.message?.includes('Missing or insufficient permissions')) {
+      handleFirestoreError(err, OperationType.UPDATE, `articles/${articleId}`);
+    }
+    throw err;
+  }
+};
+
+export const incrementViewCount = async (articleId: string, currentViews: number = 0) => {
+  try {
+    await updateDoc(doc(db, 'articles', articleId), {
+      views: currentViews + 1
+    });
+  } catch (err: any) {
+    if (err.message?.includes('Missing or insufficient permissions')) {
+      handleFirestoreError(err, OperationType.UPDATE, `articles/${articleId}`);
+    }
+    throw err;
+  }
+};
+
+export const toggleLike = async (articleId: string, userEmail: string, currentLikedBy: string[] = []) => {
+  try {
+    const hasLiked = currentLikedBy.includes(userEmail);
+    const newLikedBy = hasLiked 
+      ? currentLikedBy.filter(email => email !== userEmail)
+      : [...currentLikedBy, userEmail];
+      
+    await updateDoc(doc(db, 'articles', articleId), {
+      likedBy: newLikedBy
     });
   } catch (err: any) {
     if (err.message?.includes('Missing or insufficient permissions')) {
