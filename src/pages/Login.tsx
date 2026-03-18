@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth, db } from '../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { addAccessRequest } from '../lib/storage';
 
 enum OperationType {
   CREATE = 'create',
@@ -87,9 +88,15 @@ export default function Login() {
             localStorage.setItem('username', result.user.displayName || email!);
             navigate('/articles');
           } else {
-            // Fallback if they somehow have an auth account but no reader doc
-            await auth.signOut();
-            setError('Your email is not authorized to read articles.');
+            // Create an access request for the admin to approve
+            await addAccessRequest({
+              email: email!,
+              name: result.user.displayName || 'Anonymous',
+              date: new Date().toISOString()
+            });
+            localStorage.setItem('userRole', 'pending');
+            localStorage.setItem('username', result.user.displayName || email!);
+            navigate('/articles');
           }
         } catch (err: any) {
           if (err.message?.includes('Missing or insufficient permissions')) {
