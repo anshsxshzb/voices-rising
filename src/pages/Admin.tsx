@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useArticles, useReaders, addArticle, updateArticle, deleteArticle, Article, addReader, deleteReader } from '../lib/storage';
-import { Edit2, Trash2, Plus, Check, X, Users, FileText } from 'lucide-react';
+import { useArticles, useReaders, useAccessRequests, addArticle, updateArticle, deleteArticle, Article, addReader, deleteReader, deleteAccessRequest } from '../lib/storage';
+import { Edit2, Trash2, Plus, Check, X, Users, FileText, Bell } from 'lucide-react';
 
 export default function Admin() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'articles' | 'readers'>('articles');
+  const [activeTab, setActiveTab] = useState<'articles' | 'readers' | 'requests'>('articles');
   
   // Articles State
   const { articles, loading: articlesLoading } = useArticles();
@@ -18,6 +18,9 @@ export default function Admin() {
   const [isAddingReader, setIsAddingReader] = useState(false);
   const [readerForm, setReaderForm] = useState({ email: '' });
   const [readerError, setReaderError] = useState('');
+
+  // Requests State
+  const { requests, loading: requestsLoading } = useAccessRequests();
 
   useEffect(() => {
     const role = localStorage.getItem('userRole');
@@ -85,6 +88,23 @@ export default function Admin() {
     }
   };
 
+  // --- Request Handlers ---
+  const handleApproveRequest = async (email: string) => {
+    try {
+      await addReader({ email });
+      await deleteAccessRequest(email);
+    } catch (err) {
+      console.error('Failed to approve request:', err);
+      alert('Failed to approve request.');
+    }
+  };
+
+  const handleDenyRequest = async (email: string) => {
+    if (window.confirm('Are you sure you want to deny this request?')) {
+      await deleteAccessRequest(email);
+    }
+  };
+
   return (
     <div className="bg-zinc-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -103,6 +123,17 @@ export default function Admin() {
               className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'readers' ? 'bg-indigo-50 text-indigo-700' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'}`}
             >
               <Users className="w-4 h-4 mr-2" /> Readers
+            </button>
+            <button
+              onClick={() => setActiveTab('requests')}
+              className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'requests' ? 'bg-indigo-50 text-indigo-700' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'}`}
+            >
+              <Bell className="w-4 h-4 mr-2" /> Requests
+              {requests.length > 0 && (
+                <span className="ml-2 bg-red-100 text-red-600 py-0.5 px-2 rounded-full text-xs font-bold">
+                  {requests.length}
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -292,6 +323,51 @@ export default function Admin() {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button onClick={() => handleDeleteReader(reader.id)} className="text-red-600 hover:text-red-900">
                           <Trash2 className="h-4 w-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        {activeTab === 'requests' && (
+          <>
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-zinc-900 font-serif">Pending Access Requests</h2>
+              <p className="text-sm text-zinc-500 mt-1">Users who have signed in and are waiting for approval to comment.</p>
+            </div>
+
+            <div className="bg-white shadow-sm rounded-lg border border-zinc-200 overflow-hidden max-w-4xl">
+              <table className="min-w-full divide-y divide-zinc-200">
+                <thead className="bg-zinc-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Name</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Email</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Date Requested</th>
+                    <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-zinc-200">
+                  {requestsLoading ? (
+                    <tr><td colSpan={4} className="px-6 py-4 text-center text-sm text-zinc-500">Loading...</td></tr>
+                  ) : requests.length === 0 ? (
+                    <tr><td colSpan={4} className="px-6 py-8 text-center text-sm text-zinc-500">No pending requests.</td></tr>
+                  ) : requests.map((request) => (
+                    <tr key={request.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900">{request.name}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">{request.email}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">
+                        {new Date(request.date).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onClick={() => handleApproveRequest(request.email)} className="text-green-600 hover:text-green-900 mr-4 font-semibold">
+                          Approve
+                        </button>
+                        <button onClick={() => handleDenyRequest(request.email)} className="text-red-600 hover:text-red-900 font-semibold">
+                          Deny
                         </button>
                       </td>
                     </tr>
