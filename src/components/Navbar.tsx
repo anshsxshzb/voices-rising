@@ -1,11 +1,15 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { LogOut, PenTool, User } from 'lucide-react';
+import { LogOut, PenTool, User, Bell } from 'lucide-react';
 import { auth } from '../lib/firebase';
-import { useUserRole } from '../lib/storage';
+import { useUserRole, useNotifications, markNotificationRead } from '../lib/storage';
+import { useState } from 'react';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const userRole = useUserRole();
+  const notifications = useNotifications();
+  const [showNotifications, setShowNotifications] = useState(false);
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   const handleLogout = async () => {
     sessionStorage.setItem('isLoggingOut', 'true');
@@ -48,9 +52,57 @@ export default function Navbar() {
                     Admin Dashboard
                   </Link>
                 )}
+                {userRole === 'writer' && (
+                  <Link to="/writer" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                    Writer Dashboard
+                  </Link>
+                )}
+                
+                <div className="relative">
+                  <button 
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    className="relative p-1 text-zinc-500 hover:text-zinc-700 focus:outline-none"
+                  >
+                    <Bell className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                      <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
+                    )}
+                  </button>
+                  
+                  {showNotifications && (
+                    <div className="origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <div className="py-1">
+                        <div className="px-4 py-2 border-b border-zinc-100">
+                          <h3 className="text-sm font-medium text-zinc-900">Notifications</h3>
+                        </div>
+                        <div className="max-h-60 overflow-y-auto">
+                          {notifications.length === 0 ? (
+                            <p className="px-4 py-3 text-sm text-zinc-500">No notifications</p>
+                          ) : (
+                            notifications.map(notification => (
+                              <div 
+                                key={notification.id} 
+                                className={`px-4 py-3 text-sm border-b border-zinc-50 ${!notification.read ? 'bg-indigo-50' : ''}`}
+                                onClick={() => {
+                                  if (!notification.read) markNotificationRead(notification.id).catch(console.error);
+                                }}
+                              >
+                                <p className="text-zinc-800">{notification.message}</p>
+                                <p className="text-xs text-zinc-500 mt-1">
+                                  {new Date(notification.createdAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <span className="text-sm text-zinc-500 flex items-center gap-1">
                   <User className="h-4 w-4" />
-                  {userRole === 'admin' ? 'Admin' : userRole === 'reader' ? 'Reader' : 'Pending'}
+                  {userRole === 'admin' ? 'Admin' : userRole === 'writer' ? 'Writer' : userRole === 'reader' ? 'Reader' : 'Pending'}
                 </span>
                 <button
                   onClick={handleLogout}
