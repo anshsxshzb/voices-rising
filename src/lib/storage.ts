@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, doc, setDoc, deleteDoc, updateDoc, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, doc, setDoc, deleteDoc, updateDoc, query, orderBy, where } from 'firebase/firestore';
 import { db, auth } from './firebase';
 
 enum OperationType {
@@ -76,6 +76,13 @@ export interface ReaderAccount {
   email: string;
 }
 
+export interface AccessRequest {
+  id: string;
+  email: string;
+  name: string;
+  date: string;
+}
+
 export function useArticles() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,13 +90,15 @@ export function useArticles() {
   const [fatalError, setFatalError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!auth.currentUser) {
-      setArticles([]);
-      setLoading(false);
-      return;
+    let q;
+    const isAuthorized = auth.currentUser && (auth.currentUser.email === 'anshsxshzb@gmail.com' || localStorage.getItem('userRole') === 'reader');
+    
+    if (isAuthorized) {
+      q = query(collection(db, 'articles'), orderBy('date', 'desc'));
+    } else {
+      q = query(collection(db, 'articles'), where('published', '==', true), orderBy('date', 'desc'));
     }
 
-    const q = query(collection(db, 'articles'), orderBy('date', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Article));
       setArticles(data);
@@ -152,6 +161,43 @@ export function useReaders() {
   }
 
   return { readers, loading };
+}
+
+export function useAccessRequests() {
+  const [requests, setRequests] = useState<AccessRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [fatalError, setFatalError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!auth.currentUser || auth.currentUser.email !== 'anshsxshzb@gmail.com') {
+      setRequests([]);
+      setLoading(false);
+      return;
+    }
+
+    const unsubscribe = onSnapshot(collection(db, 'access_requests'), (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AccessRequest));
+      setRequests(data);
+      setLoading(false);
+    }, (err) => {
+      if (err.message.includes('Missing or insufficient permissions')) {
+        try {
+          handleFirestoreError(err, OperationType.LIST, 'access_requests');
+        } catch (e) {
+          setFatalError(e as Error);
+        }
+      }
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, [auth.currentUser]);
+
+  if (fatalError) {
+    throw fatalError;
+  }
+
+  return { requests, loading };
 }
 
 // Helper functions for mutations
@@ -224,6 +270,28 @@ export const deleteReader = async (id: string) => {
   } catch (err: any) {
     if (err.message?.includes('Missing or insufficient permissions')) {
       handleFirestoreError(err, OperationType.DELETE, `readers/${id}`);
+    }
+    throw err;
+  }
+};
+
+export const addAccessRequest = async (request: Omit<AccessRequest, 'id'>) => {
+  try {
+    await setDoc(doc(db, 'access_requests', request.email), request);
+  } catch (err: any) {
+    if (err.message?.includes('Missing or insufficient permissions')) {
+      handleFirestoreError(err, OperationType.CREATE, `access_requests/${request.email}`);
+    }
+    throw err;
+  }
+};
+
+export const deleteAccessRequest = async (id: string) => {
+  try {
+    await deleteDoc(doc(db, 'access_requests', id));
+  } catch (err: any) {
+    if (err.message?.includes('Missing or insufficient permissions')) {
+      handleFirestoreError(err, OperationType.DELETE, `access_requests/${id}`);
     }
     throw err;
   }
