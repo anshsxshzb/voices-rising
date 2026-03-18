@@ -44,7 +44,7 @@ export default function Navbar() {
                 )}
                 <span className="text-sm text-zinc-500 flex items-center gap-1">
                   <User className="h-4 w-4" />
-                  {userRole === 'admin' ? 'Admin' : 'Reader'}
+                  {userRole === 'admin' ? 'Admin' : userRole === 'reader' ? 'Reader' : 'Pending'}
                 </span>
                 <button
                   onClick={handleLogout}
