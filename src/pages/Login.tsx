@@ -109,6 +109,7 @@ export default function Login() {
               await addAccessRequest({
                 email: email!.toLowerCase(),
                 name: result.user.displayName || 'Anonymous',
+                photoURL: result.user.photoURL || undefined,
                 date: new Date().toISOString(),
                 status: 'pending'
               });
