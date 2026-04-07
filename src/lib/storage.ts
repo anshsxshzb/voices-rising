@@ -74,12 +74,16 @@ export interface Article {
   comments?: Comment[];
   views?: number;
   likedBy?: string[];
+  tags?: string[];
+  readTime?: number;
 }
 
 export interface ReaderAccount {
   id: string;
   email: string;
   role?: 'reader' | 'writer';
+  displayName?: string;
+  photoURL?: string;
 }
 
 export interface AppNotification {
@@ -96,6 +100,7 @@ export interface AccessRequest {
   id: string;
   email: string;
   name: string;
+  photoURL?: string;
   date: string;
   status?: 'pending' | 'denied';
 }
