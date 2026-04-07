@@ -116,6 +116,14 @@ export default function ArticleDetail() {
                     {new Date(article.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </time>
                 </div>
+                {article.readTime && (
+                  <>
+                    <span>&bull;</span>
+                    <div className="flex items-center gap-1.5 text-indigo-600 font-medium">
+                      <span>{article.readTime} min read</span>
+                    </div>
+                  </>
+                )}
                 <span>&bull;</span>
                 <div className="flex items-center gap-1.5" title="Views">
                   <Eye className="h-4 w-4 text-zinc-400" />
@@ -142,6 +150,15 @@ export default function ArticleDetail() {
             {copyMessage && (
               <div className="mt-4 p-3 bg-green-50 text-green-700 rounded-md text-sm font-medium text-center">
                 {copyMessage}
+              </div>
+            )}
+            {article.tags && article.tags.length > 0 && (
+              <div className="mt-6 flex flex-wrap gap-2">
+                {article.tags.map(tag => (
+                  <span key={tag} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-zinc-100 text-zinc-800">
+                    {tag}
+                  </span>
+                ))}
               </div>
             )}
           </header>
