@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUserRole, submitWriterApplication, useWriterApplications } from '../lib/storage';
+import { useUserRole, submitWriterApplication, useMyWriterApplication } from '../lib/storage';
 import { auth } from '../lib/firebase';
 import { PenTool, CheckCircle, Clock, XCircle } from 'lucide-react';
 
 export default function ReaderDashboard() {
   const navigate = useNavigate();
   const userRole = useUserRole();
-  const { applications } = useWriterApplications();
+  const { application: userApplication, loading } = useMyWriterApplication();
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -17,8 +17,6 @@ export default function ReaderDashboard() {
       navigate('/');
     }
   }, [userRole, navigate]);
-
-  const userApplication = applications.find(app => app.email === auth.currentUser?.email?.toLowerCase());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +46,14 @@ export default function ReaderDashboard() {
   };
 
   if (userRole !== 'reader') return null;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-zinc-50 py-12 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-zinc-50 py-12">
