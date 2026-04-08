@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useArticles, useReaders, useAccessRequests, addArticle, updateArticle, deleteArticle, Article, addReader, deleteReader, deleteAccessRequest, denyAccessRequest, updateReaderRole, addNotification } from '../lib/storage';
+import { useArticles, useReaders, useAccessRequests, useWriterApplications, addArticle, updateArticle, deleteArticle, Article, addReader, deleteReader, deleteAccessRequest, denyAccessRequest, updateReaderRole, addNotification, updateWriterApplicationStatus } from '../lib/storage';
 import { Edit2, Trash2, Plus, Check, X, Users, FileText, Bell, AlertCircle } from 'lucide-react';
 
 export default function Admin() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'articles' | 'readers' | 'requests'>('articles');
+  const [activeTab, setActiveTab] = useState<'articles' | 'readers' | 'requests' | 'writer_applications'>('articles');
   const [articleFilter, setArticleFilter] = useState<'all' | 'published' | 'pending' | 'draft' | 'rejected'>('all');
   const [readerSearch, setReaderSearch] = useState('');
   
@@ -25,6 +25,7 @@ export default function Admin() {
 
   // Requests State
   const { requests, loading: requestsLoading } = useAccessRequests();
+  const { applications: writerApplications, loading: writerApplicationsLoading } = useWriterApplications();
 
   useEffect(() => {
     const role = localStorage.getItem('userRole');
@@ -154,6 +155,41 @@ export default function Admin() {
     }
   };
 
+  const handleApproveWriterApplication = async (application: any) => {
+    try {
+      await updateReaderRole(application.email.toLowerCase(), 'writer');
+      await updateWriterApplicationStatus(application.email.toLowerCase(), 'approved');
+      await addNotification({
+        userEmail: application.email.toLowerCase(),
+        message: 'Your application to become a writer has been approved!',
+        type: 'approved',
+        read: false,
+        createdAt: new Date().toISOString()
+      });
+    } catch (err) {
+      console.error('Failed to approve writer application:', err);
+      alert('Failed to approve writer application.');
+    }
+  };
+
+  const handleRejectWriterApplication = async (email: string) => {
+    if (window.confirm('Are you sure you want to reject this writer application?')) {
+      try {
+        await updateWriterApplicationStatus(email.toLowerCase(), 'rejected');
+        await addNotification({
+          userEmail: email.toLowerCase(),
+          message: 'Your application to become a writer has been declined.',
+          type: 'rejected',
+          read: false,
+          createdAt: new Date().toISOString()
+        });
+      } catch (err) {
+        console.error('Failed to reject writer application:', err);
+        alert('Failed to reject writer application.');
+      }
+    }
+  };
+
   const filteredArticles = articles.filter(article => {
     if (articleFilter === 'all') return true;
     const status = article.status || (article.published ? 'published' : 'draft');
@@ -187,6 +223,17 @@ export default function Admin() {
               {requests.length > 0 && (
                 <span className="ml-2 bg-red-100 text-red-600 py-0.5 px-2 rounded-full text-xs font-bold">
                   {requests.length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('writer_applications')}
+              className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'writer_applications' ? 'bg-indigo-50 text-indigo-700' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'}`}
+            >
+              <FileText className="w-4 h-4 mr-2" /> Writer Apps
+              {writerApplications.filter(app => app.status === 'pending').length > 0 && (
+                <span className="ml-2 bg-red-100 text-red-600 py-0.5 px-2 rounded-full text-xs font-bold">
+                  {writerApplications.filter(app => app.status === 'pending').length}
                 </span>
               )}
             </button>
@@ -541,6 +588,78 @@ export default function Admin() {
                         <button onClick={() => handleDenyRequest(request.email)} className="text-red-600 hover:text-red-900 font-semibold">
                           Deny
                         </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        {activeTab === 'writer_applications' && (
+          <>
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-zinc-900 font-serif">Writer Applications</h2>
+              <p className="text-sm text-zinc-500 mt-1">Review applications from readers who want to become writers.</p>
+            </div>
+
+            <div className="bg-white shadow-sm rounded-lg border border-zinc-200 overflow-hidden max-w-5xl">
+              <table className="min-w-full divide-y divide-zinc-200">
+                <thead className="bg-zinc-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">User</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Reason</th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-zinc-200">
+                  {writerApplicationsLoading ? (
+                    <tr><td colSpan={4} className="px-6 py-4 text-center text-sm text-zinc-500">Loading...</td></tr>
+                  ) : writerApplications.length === 0 ? (
+                    <tr><td colSpan={4} className="px-6 py-8 text-center text-sm text-zinc-500">No writer applications.</td></tr>
+                  ) : writerApplications.map((app) => (
+                    <tr key={app.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            {app.photoURL ? (
+                              <img className="h-10 w-10 rounded-full" src={app.photoURL} alt="" referrerPolicy="no-referrer" />
+                            ) : (
+                              <div className="h-10 w-10 rounded-full bg-zinc-200 flex items-center justify-center">
+                                <span className="text-zinc-500 font-medium text-sm">{app.name ? app.name.charAt(0).toUpperCase() : app.email.charAt(0).toUpperCase()}</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-zinc-900">{app.name}</div>
+                            <div className="text-sm text-zinc-500">{app.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-zinc-500 max-w-md">
+                        <p className="line-clamp-3">{app.reason}</p>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                          ${app.status === 'approved' ? 'bg-green-100 text-green-800' : 
+                            app.status === 'pending' ? 'bg-blue-100 text-blue-800' :
+                            'bg-red-100 text-red-800'}`}>
+                          {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        {app.status === 'pending' && (
+                          <>
+                            <button onClick={() => handleApproveWriterApplication(app)} className="text-green-600 hover:text-green-900 mr-4 font-semibold">
+                              Approve
+                            </button>
+                            <button onClick={() => handleRejectWriterApplication(app.email)} className="text-red-600 hover:text-red-900 font-semibold">
+                              Reject
+                            </button>
+                          </>
+                        )}
                       </td>
                     </tr>
                   ))}
