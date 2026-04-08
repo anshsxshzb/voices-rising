@@ -342,6 +342,51 @@ export function useWriterApplications() {
   return { applications, loading };
 }
 
+export function useMyWriterApplication() {
+  const [application, setApplication] = useState<WriterApplication | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [fatalError, setFatalError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!auth.currentUser || !auth.currentUser.email) {
+      setApplication(null);
+      setLoading(false);
+      return;
+    }
+
+    const email = auth.currentUser.email.toLowerCase();
+    const unsubscribe = onSnapshot(doc(db, 'writer_applications', email), (docSnap) => {
+      if (docSnap.exists()) {
+        setApplication({ id: docSnap.id, ...docSnap.data() } as WriterApplication);
+      } else {
+        setApplication(null);
+      }
+      setLoading(false);
+    }, (err) => {
+      if (err.message.includes('Missing or insufficient permissions')) {
+        if (sessionStorage.getItem('isLoggingOut') === 'true' || !auth.currentUser) {
+          setLoading(false);
+          return;
+        }
+        try {
+          handleFirestoreError(err, OperationType.GET, `writer_applications/${email}`);
+        } catch (e) {
+          setFatalError(e as Error);
+        }
+      }
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, [auth.currentUser]);
+
+  if (fatalError) {
+    throw fatalError;
+  }
+
+  return { application, loading };
+}
+
 // Helper functions for mutations
 export const addArticle = async (article: Omit<Article, 'id'>) => {
   try {
