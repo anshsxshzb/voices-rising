@@ -17,6 +17,7 @@ import About from './pages/About';
 import Login from './pages/Login';
 import Admin from './pages/Admin';
 import WriterDashboard from './pages/WriterDashboard';
+import ReaderDashboard from './pages/ReaderDashboard';
 import ErrorBoundary from './components/ErrorBoundary';
 
 export default function App() {
@@ -137,6 +138,7 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/writer" element={<WriterDashboard />} />
+              <Route path="/reader" element={<ReaderDashboard />} />
             </Routes>
           </main>
           <Footer />
