@@ -105,6 +105,16 @@ export interface AccessRequest {
   status?: 'pending' | 'denied';
 }
 
+export interface WriterApplication {
+  id: string;
+  email: string;
+  name: string;
+  photoURL?: string;
+  reason: string;
+  date: string;
+  status: 'pending' | 'approved' | 'rejected';
+}
+
 export function useUserRole() {
   const [role, setRole] = useState<string | null>(localStorage.getItem('userRole'));
 
@@ -291,6 +301,47 @@ export function useAccessRequests() {
   return { requests, loading };
 }
 
+export function useWriterApplications() {
+  const [applications, setApplications] = useState<WriterApplication[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [fatalError, setFatalError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!auth.currentUser) {
+      setApplications([]);
+      setLoading(false);
+      return;
+    }
+
+    const unsubscribe = onSnapshot(collection(db, 'writer_applications'), (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WriterApplication));
+      setApplications(data);
+      setLoading(false);
+    }, (err) => {
+      if (err.message.includes('Missing or insufficient permissions')) {
+        if (sessionStorage.getItem('isLoggingOut') === 'true' || !auth.currentUser) {
+          setLoading(false);
+          return;
+        }
+        try {
+          handleFirestoreError(err, OperationType.LIST, 'writer_applications');
+        } catch (e) {
+          setFatalError(e as Error);
+        }
+      }
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, [auth.currentUser]);
+
+  if (fatalError) {
+    throw fatalError;
+  }
+
+  return { applications, loading };
+}
+
 // Helper functions for mutations
 export const addArticle = async (article: Omit<Article, 'id'>) => {
   try {
@@ -426,6 +477,28 @@ export const deleteAccessRequest = async (id: string) => {
   } catch (err: any) {
     if (err.message?.includes('Missing or insufficient permissions')) {
       handleFirestoreError(err, OperationType.DELETE, `access_requests/${id}`);
+    }
+    throw err;
+  }
+};
+
+export const submitWriterApplication = async (application: Omit<WriterApplication, 'id'>) => {
+  try {
+    await setDoc(doc(db, 'writer_applications', application.email), application);
+  } catch (err: any) {
+    if (err.message?.includes('Missing or insufficient permissions')) {
+      handleFirestoreError(err, OperationType.CREATE, `writer_applications/${application.email}`);
+    }
+    throw err;
+  }
+};
+
+export const updateWriterApplicationStatus = async (email: string, status: 'approved' | 'rejected') => {
+  try {
+    await updateDoc(doc(db, 'writer_applications', email), { status });
+  } catch (err: any) {
+    if (err.message?.includes('Missing or insufficient permissions')) {
+      handleFirestoreError(err, OperationType.UPDATE, `writer_applications/${email}`);
     }
     throw err;
   }
