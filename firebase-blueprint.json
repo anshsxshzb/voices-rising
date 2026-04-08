@@ -32,9 +32,52 @@
       "description": "An authorized reader email",
       "type": "object",
       "properties": {
-        "email": { "type": "string", "description": "Email address of the reader" }
+        "email": { "type": "string", "description": "Email address of the reader" },
+        "role": { "type": "string", "description": "Role of the user (reader, writer)" },
+        "displayName": { "type": "string", "description": "Display name of the user" },
+        "photoURL": { "type": "string", "description": "Profile picture URL" }
       },
       "required": ["email"]
+    },
+    "AccessRequest": {
+      "title": "Access Request",
+      "description": "A request to access the platform",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "description": "Email address of the requester" },
+        "name": { "type": "string", "description": "Name of the requester" },
+        "photoURL": { "type": "string", "description": "Profile picture URL" },
+        "date": { "type": "string", "description": "Date of request" },
+        "status": { "type": "string", "description": "Status of the request (pending, denied)" }
+      },
+      "required": ["email", "name", "date"]
+    },
+    "WriterApplication": {
+      "title": "Writer Application",
+      "description": "An application to become a writer",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "description": "Email address of the applicant" },
+        "name": { "type": "string", "description": "Name of the applicant" },
+        "photoURL": { "type": "string", "description": "Profile picture URL" },
+        "reason": { "type": "string", "description": "Reason for applying" },
+        "date": { "type": "string", "description": "Date of application" },
+        "status": { "type": "string", "description": "Status of the application (pending, approved, rejected)" }
+      },
+      "required": ["email", "name", "reason", "date", "status"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "A notification for a user",
+      "type": "object",
+      "properties": {
+        "userEmail": { "type": "string", "description": "Email address of the user" },
+        "message": { "type": "string", "description": "Notification message" },
+        "type": { "type": "string", "description": "Type of notification" },
+        "read": { "type": "boolean", "description": "Whether the notification has been read" },
+        "createdAt": { "type": "string", "description": "Date of notification" }
+      },
+      "required": ["userEmail", "message", "type", "read", "createdAt"]
     }
   },
   "firestore": {
@@ -45,6 +88,18 @@
     "readers/{readerId}": {
       "schema": { "$ref": "#/entities/Reader" },
       "description": "Collection of all reader accounts"
+    },
+    "access_requests/{requestId}": {
+      "schema": { "$ref": "#/entities/AccessRequest" },
+      "description": "Collection of all access requests"
+    },
+    "writer_applications/{applicationId}": {
+      "schema": { "$ref": "#/entities/WriterApplication" },
+      "description": "Collection of all writer applications"
+    },
+    "notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "Collection of all notifications"
     }
   }
 }
