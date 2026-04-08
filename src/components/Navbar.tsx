@@ -57,6 +57,11 @@ export default function Navbar() {
                     Writer Dashboard
                   </Link>
                 )}
+                {userRole === 'reader' && (
+                  <Link to="/reader" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                    Apply to Write
+                  </Link>
+                )}
                 
                 <div className="relative">
                   <button 
