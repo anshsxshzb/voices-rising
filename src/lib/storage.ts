@@ -388,6 +388,13 @@ export function useMyWriterApplication() {
 }
 
 // Helper functions for mutations
+export const calculateReadTime = (content?: string): number => {
+  if (!content) return 1;
+  const wordsPerMinute = 200;
+  const words = content.trim().split(/\s+/).length;
+  return Math.max(1, Math.ceil(words / wordsPerMinute));
+};
+
 export const addArticle = async (article: Omit<Article, 'id'>) => {
   try {
     const newId = Date.now().toString();
