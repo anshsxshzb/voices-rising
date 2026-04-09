@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { useArticles } from '../lib/storage';
+import { useArticles, calculateReadTime } from '../lib/storage';
 import { Calendar, User, ArrowRight, Eye, Heart, Search, Tag } from 'lucide-react';
 import { auth } from '../lib/firebase';
 
@@ -114,14 +114,12 @@ export default function Articles() {
                       {new Date(article.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
                     </time>
                   </div>
-                  {article.readTime && (
-                    <>
-                      <span className="hidden sm:inline">&bull;</span>
-                      <div className="flex items-center gap-1 text-indigo-600 font-medium">
-                        <span>{article.readTime} min read</span>
-                      </div>
-                    </>
-                  )}
+                  <>
+                    <span className="hidden sm:inline">&bull;</span>
+                    <div className="flex items-center gap-1 text-indigo-600 font-medium">
+                      <span>{article.readTime || calculateReadTime(article.content)} min read</span>
+                    </div>
+                  </>
                   <span className="hidden sm:inline">&bull;</span>
                   <div className="flex items-center gap-1" title="Views">
                     <Eye className="h-4 w-4" />
