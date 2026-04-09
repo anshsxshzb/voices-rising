@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useArticles, addComment, Article, useUserRole, incrementViewCount, toggleLike } from '../lib/storage';
+import { useArticles, addComment, Article, useUserRole, incrementViewCount, toggleLike, calculateReadTime } from '../lib/storage';
 import { Calendar, User, Share2, Code, MessageSquare, ArrowLeft, Eye, Heart } from 'lucide-react';
 import { auth } from '../lib/firebase';
 
@@ -116,14 +116,12 @@ export default function ArticleDetail() {
                     {new Date(article.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </time>
                 </div>
-                {article.readTime && (
-                  <>
-                    <span>&bull;</span>
-                    <div className="flex items-center gap-1.5 text-indigo-600 font-medium">
-                      <span>{article.readTime} min read</span>
-                    </div>
-                  </>
-                )}
+                <>
+                  <span>&bull;</span>
+                  <div className="flex items-center gap-1.5 text-indigo-600 font-medium">
+                    <span>{article.readTime || calculateReadTime(article.content)} min read</span>
+                  </div>
+                </>
                 <span>&bull;</span>
                 <div className="flex items-center gap-1.5" title="Views">
                   <Eye className="h-4 w-4 text-zinc-400" />
