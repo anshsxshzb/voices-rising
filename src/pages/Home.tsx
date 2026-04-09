@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useArticles } from '../lib/storage';
+import { useArticles, calculateReadTime } from '../lib/storage';
 import { ArrowRight, BookOpen, Eye, Heart } from 'lucide-react';
 import { auth } from '../lib/firebase';
 
@@ -64,13 +64,32 @@ export default function Home() {
               <div key={article.id} className="flex flex-col rounded-lg shadow-sm border border-zinc-200 overflow-hidden hover:shadow-md transition-shadow">
                 <div className="flex-1 bg-white p-6 flex flex-col justify-between">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-indigo-600">
-                      {new Date(article.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-indigo-600">
+                        {new Date(article.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                      <p className="text-xs font-medium text-zinc-500">
+                        {article.readTime || calculateReadTime(article.content)} min read
+                      </p>
+                    </div>
                     <Link to={`/articles/${article.id}`} className="block mt-2">
                       <p className="text-xl font-semibold text-zinc-900 font-serif">{article.title}</p>
                       <p className="mt-3 text-base text-zinc-500 line-clamp-3">{article.preview}</p>
                     </Link>
+                    {article.tags && article.tags.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-1">
+                        {article.tags.slice(0, 3).map(tag => (
+                          <span key={tag} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-zinc-100 text-zinc-600">
+                            {tag}
+                          </span>
+                        ))}
+                        {article.tags.length > 3 && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-zinc-100 text-zinc-600">
+                            +{article.tags.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="mt-6 flex items-center">
                     <div className="flex-shrink-0">
