@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useWriterArticles, addArticle, updateArticle, deleteArticle, Article } from '../lib/storage';
+import { useWriterArticles, addArticle, updateArticle, deleteArticle, Article, calculateReadTime } from '../lib/storage';
 import { Edit2, Trash2, Plus, Check, X, Send } from 'lucide-react';
 import { auth } from '../lib/firebase';
 
@@ -11,6 +11,7 @@ export default function WriterDashboard() {
   const { articles, loading: articlesLoading } = useWriterArticles();
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Article>>({});
+  const [tagsInput, setTagsInput] = useState('');
   const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
@@ -23,12 +24,19 @@ export default function WriterDashboard() {
   const handleEdit = (article: Article) => {
     setIsEditing(article.id);
     setEditForm(article);
+    setTagsInput(article.tags?.join(', ') || '');
   };
 
   const handleSave = async () => {
     if (isEditing) {
       // Writers can't change status to published directly when editing
       const updateData = { ...editForm };
+      
+      updateData.tags = tagsInput.split(',').map(t => t.trim()).filter(t => t.length > 0);
+      if (updateData.content) {
+        updateData.readTime = calculateReadTime(updateData.content);
+      }
+
       if (updateData.status === 'published') {
         // If it was already published, they can edit content but it stays published
       } else if (updateData.status === 'pending') {
@@ -38,6 +46,7 @@ export default function WriterDashboard() {
       }
       await updateArticle(isEditing, updateData);
       setIsEditing(null);
+      setTagsInput('');
     }
   };
 
@@ -52,6 +61,9 @@ export default function WriterDashboard() {
       const username = localStorage.getItem('username') || 'Writer';
       const email = auth.currentUser?.email?.toLowerCase() || '';
       
+      const tags = tagsInput.split(',').map(t => t.trim()).filter(t => t.length > 0);
+      const readTime = calculateReadTime(editForm.content);
+
       await addArticle({
         title: editForm.title || '',
         content: editForm.content || '',
@@ -61,9 +73,12 @@ export default function WriterDashboard() {
         preview: editForm.preview || editForm.content?.substring(0, 150) + '...',
         published: false,
         status: 'draft',
+        tags,
+        readTime,
       });
       setIsAdding(false);
       setEditForm({});
+      setTagsInput('');
     } else {
       alert('Please fill in title and content.');
     }
@@ -105,7 +120,7 @@ export default function WriterDashboard() {
             ))}
           </div>
           <button
-            onClick={() => { setIsAdding(true); setEditForm({ status: 'draft' }); }}
+            onClick={() => { setIsAdding(true); setEditForm({ status: 'draft' }); setTagsInput(''); }}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -138,6 +153,16 @@ export default function WriterDashboard() {
                 />
               </div>
               <div>
+                <label className="block text-sm font-medium text-zinc-700">Tags (comma separated)</label>
+                <input
+                  type="text"
+                  value={tagsInput}
+                  onChange={e => setTagsInput(e.target.value)}
+                  placeholder="e.g. human rights, education, youth"
+                  className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                />
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-zinc-700">Content</label>
                 <textarea
                   value={editForm.content || ''}
@@ -148,7 +173,7 @@ export default function WriterDashboard() {
               </div>
               <div className="flex justify-end gap-3 mt-6">
                 <button
-                  onClick={() => { setIsAdding(false); setIsEditing(null); setEditForm({}); }}
+                  onClick={() => { setIsAdding(false); setIsEditing(null); setEditForm({}); setTagsInput(''); }}
                   className="inline-flex items-center px-4 py-2 border border-zinc-300 shadow-sm text-sm font-medium rounded-md text-zinc-700 bg-white hover:bg-zinc-50"
                 >
                   <X className="h-4 w-4 mr-2" /> Cancel
@@ -184,12 +209,26 @@ export default function WriterDashboard() {
                 return (
                 <tr key={article.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900">
-                    {article.title}
-                    {status === 'rejected' && article.rejectionReason && (
-                      <p className="text-xs text-red-500 mt-1 truncate max-w-xs">Reason: {article.rejectionReason}</p>
-                    )}
+                    <div className="flex flex-col">
+                      <span>{article.title}</span>
+                      {article.tags && article.tags.length > 0 && (
+                        <div className="flex gap-1 mt-1">
+                          {article.tags.map(tag => (
+                            <span key={tag} className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-zinc-100 text-zinc-600">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {status === 'rejected' && article.rejectionReason && (
+                        <p className="text-xs text-red-500 mt-1 truncate max-w-xs">Reason: {article.rejectionReason}</p>
+                      )}
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">{article.date}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">
+                    {article.date}
+                    {article.readTime && <div className="text-xs mt-1">{article.readTime} min read</div>}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                       ${status === 'published' ? 'bg-green-100 text-green-800' : 
