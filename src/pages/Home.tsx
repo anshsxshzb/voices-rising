@@ -11,23 +11,23 @@ export default function Home() {
     <div className="bg-[#FAFAFA]">
       {/* Hero Section */}
       <div className="relative border-b border-zinc-900">
-        <div className="max-w-7xl mx-auto py-24 px-4 sm:py-32 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-6xl font-black tracking-tighter text-zinc-900 sm:text-8xl lg:text-9xl font-serif uppercase">
+        <div className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter text-zinc-900 font-serif uppercase leading-none">
             Voices Rising
           </h1>
-          <p className="mt-8 text-lg sm:text-xl text-zinc-600 max-w-2xl mx-auto font-serif italic">
+          <p className="mt-6 sm:mt-8 text-base sm:text-lg md:text-xl text-zinc-600 max-w-2xl mx-auto font-serif italic px-4">
             Empowering teenagers in India to write, reflect, and advocate for human rights. Your voice matters, your stories inspire change.
           </p>
-          <div className="mt-12 flex justify-center gap-6">
+          <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 px-4">
             <Link
               to="/articles"
-              className="inline-flex items-center px-8 py-3 border border-zinc-900 text-xs font-bold uppercase tracking-widest text-white bg-zinc-900 hover:bg-zinc-800 rounded-none"
+              className="inline-flex justify-center items-center px-8 py-4 sm:py-3 border border-zinc-900 text-xs font-bold uppercase tracking-widest text-white bg-zinc-900 hover:bg-zinc-800 rounded-none w-full sm:w-auto"
             >
               Read Articles
             </Link>
             <Link
               to="/about"
-              className="inline-flex items-center px-8 py-3 border border-zinc-900 text-xs font-bold uppercase tracking-widest text-zinc-900 bg-transparent hover:bg-zinc-100 rounded-none"
+              className="inline-flex justify-center items-center px-8 py-4 sm:py-3 border border-zinc-900 text-xs font-bold uppercase tracking-widest text-zinc-900 bg-transparent hover:bg-zinc-100 rounded-none w-full sm:w-auto"
             >
               Our Mission
             </Link>
