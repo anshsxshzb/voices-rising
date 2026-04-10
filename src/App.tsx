@@ -120,14 +120,14 @@ export default function App() {
     };
   }, []);
 
-  if (!isAuthReady) {
-    return <div className="min-h-screen flex items-center justify-center bg-white"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></div>;
+    if (!isAuthReady) {
+    return <div className="min-h-screen flex items-center justify-center bg-[#FAFAFA]"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-800"></div></div>;
   }
 
   return (
     <Router>
       <ErrorBoundary>
-        <div className="min-h-screen flex flex-col bg-white font-sans text-zinc-900">
+        <div className="min-h-screen flex flex-col bg-[#FAFAFA] font-sans text-zinc-900">
           <Navbar />
           <main className="flex-grow">
             <Routes>
