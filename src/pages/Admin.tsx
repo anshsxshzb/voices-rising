@@ -197,42 +197,42 @@ export default function Admin() {
   });
 
   return (
-    <div className="bg-zinc-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div className="bg-[#FAFAFA] min-h-screen py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-          <h1 className="text-3xl font-extrabold text-zinc-900 font-serif">Admin Dashboard</h1>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 border-b border-zinc-900 pb-8 gap-4">
+          <h1 className="text-4xl font-black text-zinc-900 font-serif uppercase tracking-widest">Admin Dashboard</h1>
           
-          <div className="flex bg-white rounded-lg shadow-sm border border-zinc-200 p-1">
+          <div className="flex space-x-4 overflow-x-auto pb-2 sm:pb-0">
             <button
               onClick={() => setActiveTab('articles')}
-              className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'articles' ? 'bg-indigo-50 text-indigo-700' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'}`}
+              className={`flex items-center px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'articles' ? 'border-red-800 text-red-800' : 'border-transparent text-zinc-500 hover:text-zinc-900 hover:border-zinc-300'}`}
             >
               <FileText className="w-4 h-4 mr-2" /> Articles
             </button>
             <button
               onClick={() => setActiveTab('readers')}
-              className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'readers' ? 'bg-indigo-50 text-indigo-700' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'}`}
+              className={`flex items-center px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'readers' ? 'border-red-800 text-red-800' : 'border-transparent text-zinc-500 hover:text-zinc-900 hover:border-zinc-300'}`}
             >
               <Users className="w-4 h-4 mr-2" /> Readers
             </button>
             <button
               onClick={() => setActiveTab('requests')}
-              className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'requests' ? 'bg-indigo-50 text-indigo-700' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'}`}
+              className={`flex items-center px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'requests' ? 'border-red-800 text-red-800' : 'border-transparent text-zinc-500 hover:text-zinc-900 hover:border-zinc-300'}`}
             >
               <Bell className="w-4 h-4 mr-2" /> Requests
               {requests.length > 0 && (
-                <span className="ml-2 bg-red-100 text-red-600 py-0.5 px-2 rounded-full text-xs font-bold">
+                <span className="ml-2 bg-red-800 text-white py-0.5 px-2 rounded-none text-[10px]">
                   {requests.length}
                 </span>
               )}
             </button>
             <button
               onClick={() => setActiveTab('writer_applications')}
-              className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === 'writer_applications' ? 'bg-indigo-50 text-indigo-700' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'}`}
+              className={`flex items-center px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'writer_applications' ? 'border-red-800 text-red-800' : 'border-transparent text-zinc-500 hover:text-zinc-900 hover:border-zinc-300'}`}
             >
               <FileText className="w-4 h-4 mr-2" /> Writer Apps
               {writerApplications.filter(app => app.status === 'pending').length > 0 && (
-                <span className="ml-2 bg-red-100 text-red-600 py-0.5 px-2 rounded-full text-xs font-bold">
+                <span className="ml-2 bg-red-800 text-white py-0.5 px-2 rounded-none text-[10px]">
                   {writerApplications.filter(app => app.status === 'pending').length}
                 </span>
               )}
@@ -242,16 +242,16 @@ export default function Admin() {
 
         {activeTab === 'articles' && (
           <>
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-              <div className="flex space-x-2 overflow-x-auto pb-2 sm:pb-0">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 gap-6">
+              <div className="flex space-x-3 overflow-x-auto pb-2 sm:pb-0">
                 {(['all', 'published', 'pending', 'draft', 'rejected'] as const).map(filter => (
                   <button
                     key={filter}
                     onClick={() => setArticleFilter(filter)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize whitespace-nowrap ${
+                    className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-colors border rounded-none ${
                       articleFilter === filter 
-                        ? 'bg-zinc-800 text-white' 
-                        : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+                        ? 'border-red-800 bg-red-800 text-white' 
+                        : 'border-zinc-900 text-zinc-900 bg-transparent hover:bg-zinc-100'
                     }`}
                   >
                     {filter}
@@ -260,7 +260,7 @@ export default function Admin() {
               </div>
               <button
                 onClick={() => { setIsAdding(true); setEditForm({ published: false, status: 'draft' }); }}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                className="inline-flex items-center px-6 py-3 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-white bg-zinc-900 hover:bg-zinc-800"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 New Article
@@ -268,45 +268,45 @@ export default function Admin() {
             </div>
 
             {(isAdding || isEditing) && (
-              <div className="bg-white shadow-sm rounded-lg p-6 mb-8 border border-zinc-200">
-                <h2 className="text-xl font-bold text-zinc-900 mb-4 font-serif">
+              <div className="bg-transparent border border-zinc-900 p-8 mb-12">
+                <h2 className="text-2xl font-black text-zinc-900 mb-8 font-serif uppercase tracking-widest">
                   {isAdding ? 'Add New Article' : 'Edit Article'}
                 </h2>
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-zinc-700">Title</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-900 mb-2">Title</label>
                     <input
                       type="text"
                       value={editForm.title || ''}
                       onChange={e => setEditForm({ ...editForm, title: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                      className="block w-full border-zinc-900 focus:border-red-800 focus:ring-0 sm:text-sm p-3 border bg-transparent font-serif italic"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-zinc-700">Author</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-900 mb-2">Author</label>
                     <input
                       type="text"
                       value={editForm.author || ''}
                       onChange={e => setEditForm({ ...editForm, author: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                      className="block w-full border-zinc-900 focus:border-red-800 focus:ring-0 sm:text-sm p-3 border bg-transparent font-serif italic"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-zinc-700">Preview</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-900 mb-2">Preview</label>
                     <textarea
                       value={editForm.preview || ''}
                       onChange={e => setEditForm({ ...editForm, preview: e.target.value })}
                       rows={2}
-                      className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                      className="block w-full border-zinc-900 focus:border-red-800 focus:ring-0 sm:text-sm p-3 border bg-transparent font-serif italic"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-zinc-700">Content</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-900 mb-2">Content</label>
                     <textarea
                       value={editForm.content || ''}
                       onChange={e => setEditForm({ ...editForm, content: e.target.value })}
                       rows={6}
-                      className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                      className="block w-full border-zinc-900 focus:border-red-800 focus:ring-0 sm:text-sm p-3 border bg-transparent font-serif italic"
                     />
                   </div>
                   <div className="flex items-center">
@@ -315,22 +315,22 @@ export default function Admin() {
                       type="checkbox"
                       checked={editForm.published || false}
                       onChange={e => setEditForm({ ...editForm, published: e.target.checked, status: e.target.checked ? 'published' : 'draft' })}
-                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-zinc-300 rounded"
+                      className="h-4 w-4 text-red-800 focus:ring-red-800 border-zinc-900 rounded-none bg-transparent"
                     />
-                    <label htmlFor="published" className="ml-2 block text-sm text-zinc-900">
+                    <label htmlFor="published" className="ml-3 block text-[10px] font-bold uppercase tracking-widest text-zinc-900">
                       Published
                     </label>
                   </div>
-                  <div className="flex justify-end gap-3 mt-6">
+                  <div className="flex justify-end gap-3 mt-8">
                     <button
                       onClick={() => { setIsAdding(false); setIsEditing(null); setEditForm({}); }}
-                      className="inline-flex items-center px-4 py-2 border border-zinc-300 shadow-sm text-sm font-medium rounded-md text-zinc-700 bg-white hover:bg-zinc-50"
+                      className="inline-flex items-center px-6 py-3 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-zinc-900 bg-transparent hover:bg-zinc-100"
                     >
                       <X className="h-4 w-4 mr-2" /> Cancel
                     </button>
                     <button
                       onClick={isAdding ? handleAdd : handleSave}
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                      className="inline-flex items-center px-6 py-3 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-white bg-zinc-900 hover:bg-zinc-800"
                     >
                       <Check className="h-4 w-4 mr-2" /> Save
                     </button>
@@ -339,56 +339,56 @@ export default function Admin() {
               </div>
             )}
 
-            <div className="bg-white shadow-sm rounded-lg border border-zinc-200 overflow-hidden">
-              <table className="min-w-full divide-y divide-zinc-200">
-                <thead className="bg-zinc-50">
+            <div className="bg-transparent border border-zinc-900 overflow-hidden">
+              <table className="min-w-full divide-y divide-zinc-900">
+                <thead className="bg-zinc-100 border-b border-zinc-900">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Title</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Author</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Date</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Status</th>
-                    <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
+                    <th scope="col" className="px-6 py-4 text-left text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Title</th>
+                    <th scope="col" className="px-6 py-4 text-left text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Author</th>
+                    <th scope="col" className="px-6 py-4 text-left text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Date</th>
+                    <th scope="col" className="px-6 py-4 text-left text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Status</th>
+                    <th scope="col" className="relative px-6 py-4"><span className="sr-only">Actions</span></th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-zinc-200">
+                <tbody className="bg-transparent divide-y divide-zinc-200">
                   {articlesLoading ? (
-                    <tr><td colSpan={5} className="px-6 py-4 text-center text-sm text-zinc-500">Loading...</td></tr>
+                    <tr><td colSpan={5} className="px-6 py-8 text-center text-sm text-zinc-500 font-serif italic">Loading...</td></tr>
                   ) : filteredArticles.map((article) => {
                     const status = article.status || (article.published ? 'published' : 'draft');
                     return (
-                    <tr key={article.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900">
-                        {article.title}
+                    <tr key={article.id} className="hover:bg-zinc-50 transition-colors">
+                      <td className="px-6 py-6 whitespace-nowrap text-sm font-medium text-zinc-900">
+                        <span className="font-serif text-lg font-bold">{article.title}</span>
                         {status === 'rejected' && article.rejectionReason && (
-                          <p className="text-xs text-red-500 mt-1 truncate max-w-xs">Reason: {article.rejectionReason}</p>
+                          <p className="text-xs text-red-800 mt-2 truncate max-w-xs font-serif italic">Reason: {article.rejectionReason}</p>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">{article.author}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">{article.date}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                          ${status === 'published' ? 'bg-green-100 text-green-800' : 
-                            status === 'pending' ? 'bg-blue-100 text-blue-800' :
-                            status === 'rejected' ? 'bg-red-100 text-red-800' :
-                            'bg-yellow-100 text-yellow-800'}`}>
-                          {status.charAt(0).toUpperCase() + status.slice(1)}
+                      <td className="px-6 py-6 whitespace-nowrap text-[10px] font-bold uppercase tracking-widest text-zinc-500">{article.author}</td>
+                      <td className="px-6 py-6 whitespace-nowrap text-[10px] font-bold uppercase tracking-widest text-zinc-500">{article.date}</td>
+                      <td className="px-6 py-6 whitespace-nowrap text-sm text-zinc-500">
+                        <span className={`px-3 py-1 inline-flex text-[10px] font-bold uppercase tracking-widest border rounded-none
+                          ${status === 'published' ? 'border-zinc-900 bg-zinc-900 text-white' : 
+                            status === 'pending' ? 'border-zinc-900 bg-zinc-100 text-zinc-900' :
+                            status === 'rejected' ? 'border-red-800 bg-red-50 text-red-800' :
+                            'border-zinc-300 bg-transparent text-zinc-600'}`}>
+                          {status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
                         {status === 'pending' && (
                           <>
-                            <button onClick={() => handleApproveArticle(article)} className="text-green-600 hover:text-green-900 mr-3" title="Approve">
+                            <button onClick={() => handleApproveArticle(article)} className="text-zinc-600 hover:text-zinc-900 mr-4 transition-colors" title="Approve">
                               <Check className="h-4 w-4" />
                             </button>
-                            <button onClick={() => setRejectingArticleId(article.id)} className="text-red-600 hover:text-red-900 mr-4" title="Reject">
+                            <button onClick={() => setRejectingArticleId(article.id)} className="text-red-800 hover:text-red-900 mr-4 transition-colors" title="Reject">
                               <X className="h-4 w-4" />
                             </button>
                           </>
                         )}
-                        <button onClick={() => handleEdit(article)} className="text-indigo-600 hover:text-indigo-900 mr-4">
+                        <button onClick={() => handleEdit(article)} className="text-zinc-600 hover:text-zinc-900 mr-4 transition-colors">
                           <Edit2 className="h-4 w-4" />
                         </button>
-                        <button onClick={() => handleDelete(article.id)} className="text-red-600 hover:text-red-900">
+                        <button onClick={() => handleDelete(article.id)} className="text-red-800 hover:text-red-900 transition-colors">
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </td>
@@ -400,18 +400,18 @@ export default function Admin() {
 
             {rejectingArticleId && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
-                  <h3 className="text-lg font-bold mb-4">Reject Article</h3>
+                <div className="bg-[#FAFAFA] p-8 border border-zinc-900 max-w-md w-full">
+                  <h3 className="text-2xl font-black mb-6 font-serif uppercase tracking-widest">Reject Article</h3>
                   <textarea
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
                     placeholder="Provide a reason for rejection..."
-                    className="w-full border rounded-md p-2 mb-4"
+                    className="w-full border-zinc-900 focus:border-red-800 focus:ring-0 p-3 mb-6 bg-transparent font-serif italic"
                     rows={3}
                   />
-                  <div className="flex justify-end space-x-3">
-                    <button onClick={() => { setRejectingArticleId(null); setRejectReason(''); }} className="px-4 py-2 text-zinc-600 hover:text-zinc-800">Cancel</button>
-                    <button onClick={() => handleRejectArticle(articles.find(a => a.id === rejectingArticleId)!)} className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Reject</button>
+                  <div className="flex justify-end space-x-4">
+                    <button onClick={() => { setRejectingArticleId(null); setRejectReason(''); }} className="px-6 py-3 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-zinc-900 bg-transparent hover:bg-zinc-100">Cancel</button>
+                    <button onClick={() => handleRejectArticle(articles.find(a => a.id === rejectingArticleId)!)} className="px-6 py-3 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-white bg-red-800 hover:bg-red-900">Reject</button>
                   </div>
                 </div>
               </div>
@@ -421,111 +421,111 @@ export default function Admin() {
 
         {activeTab === 'readers' && (
           <>
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-12">
               <div className="max-w-md w-full mr-4">
                 <input
                   type="text"
-                  placeholder="Search readers by name or email..."
+                  placeholder="Search users by name or email..."
                   value={readerSearch}
                   onChange={(e) => setReaderSearch(e.target.value)}
-                  className="block w-full rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                  className="block w-full border-zinc-900 focus:border-red-800 focus:ring-0 sm:text-sm p-3 border bg-transparent font-serif italic"
                 />
               </div>
               <button
                 onClick={() => setIsAddingReader(true)}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                className="inline-flex items-center px-6 py-3 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-white bg-zinc-900 hover:bg-zinc-800"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                New Reader
+                New User
               </button>
             </div>
 
             {isAddingReader && (
-              <div className="bg-white shadow-sm rounded-lg p-6 mb-8 border border-zinc-200 max-w-md">
-                <h2 className="text-xl font-bold text-zinc-900 mb-4 font-serif">Add New Reader</h2>
-                {readerError && <p className="text-red-600 text-sm mb-4">{readerError}</p>}
-                <div className="space-y-4">
+              <div className="bg-transparent border border-zinc-900 p-8 mb-12 max-w-md">
+                <h2 className="text-2xl font-black text-zinc-900 mb-6 font-serif uppercase tracking-widest">Add New User</h2>
+                {readerError && <p className="text-red-800 text-[10px] font-bold uppercase tracking-widest mb-6">{readerError}</p>}
+                <div className="space-y-6">
                   <div>
-                    <label className="block text-sm font-medium text-zinc-700">Email Address</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-900 mb-2">Email Address</label>
                     <input
                       type="email"
                       value={readerForm.email}
                       onChange={e => setReaderForm({ ...readerForm, email: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                      className="block w-full border-zinc-900 focus:border-red-800 focus:ring-0 sm:text-sm p-3 border bg-transparent font-serif italic"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-zinc-700">Role</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-900 mb-2">Role</label>
                     <select
                       value={readerForm.role}
                       onChange={e => setReaderForm({ ...readerForm, role: e.target.value as 'reader' | 'writer' })}
-                      className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border bg-white"
+                      className="block w-full border-zinc-900 focus:border-red-800 focus:ring-0 sm:text-sm p-3 border bg-transparent font-serif italic"
                     >
                       <option value="reader">Reader</option>
                       <option value="writer">Writer</option>
                     </select>
                   </div>
-                  <div className="flex justify-end gap-3 mt-6">
+                  <div className="flex justify-end gap-3 mt-8">
                     <button
                       onClick={() => { setIsAddingReader(false); setReaderForm({ email: '', role: 'reader' }); setReaderError(''); }}
-                      className="inline-flex items-center px-4 py-2 border border-zinc-300 shadow-sm text-sm font-medium rounded-md text-zinc-700 bg-white hover:bg-zinc-50"
+                      className="inline-flex items-center px-6 py-3 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-zinc-900 bg-transparent hover:bg-zinc-100"
                     >
                       <X className="h-4 w-4 mr-2" /> Cancel
                     </button>
                     <button
                       onClick={handleAddReader}
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                      className="inline-flex items-center px-6 py-3 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-white bg-zinc-900 hover:bg-zinc-800"
                     >
-                      <Check className="h-4 w-4 mr-2" /> Save Reader
+                      <Check className="h-4 w-4 mr-2" /> Save User
                     </button>
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="bg-white shadow-sm rounded-lg border border-zinc-200 overflow-hidden max-w-4xl">
-              <table className="min-w-full divide-y divide-zinc-200">
-                <thead className="bg-zinc-50">
+            <div className="bg-transparent border border-zinc-900 overflow-hidden max-w-4xl">
+              <table className="min-w-full divide-y divide-zinc-900">
+                <thead className="bg-zinc-100 border-b border-zinc-900">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">User</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Role</th>
-                    <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
+                    <th scope="col" className="px-6 py-4 text-left text-[10px] font-bold text-zinc-900 uppercase tracking-widest">User</th>
+                    <th scope="col" className="px-6 py-4 text-left text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Role</th>
+                    <th scope="col" className="relative px-6 py-4"><span className="sr-only">Actions</span></th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-zinc-200">
+                <tbody className="bg-transparent divide-y divide-zinc-200">
                   {readersLoading ? (
-                    <tr><td colSpan={3} className="px-6 py-4 text-center text-sm text-zinc-500">Loading...</td></tr>
+                    <tr><td colSpan={3} className="px-6 py-8 text-center text-sm text-zinc-500 font-serif italic">Loading...</td></tr>
                   ) : filteredReaders.map((reader) => (
-                    <tr key={reader.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                    <tr key={reader.id} className="hover:bg-zinc-50 transition-colors">
+                      <td className="px-6 py-6 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
                             {reader.photoURL ? (
-                              <img className="h-10 w-10 rounded-full" src={reader.photoURL} alt="" referrerPolicy="no-referrer" />
+                              <img className="h-10 w-10 rounded-none grayscale border border-zinc-900" src={reader.photoURL} alt="" referrerPolicy="no-referrer" />
                             ) : (
-                              <div className="h-10 w-10 rounded-full bg-zinc-200 flex items-center justify-center">
-                                <span className="text-zinc-500 font-medium text-sm">{reader.displayName ? reader.displayName.charAt(0).toUpperCase() : reader.email.charAt(0).toUpperCase()}</span>
+                              <div className="h-10 w-10 rounded-none border border-zinc-900 bg-zinc-100 flex items-center justify-center">
+                                <span className="text-zinc-900 font-bold font-serif">{reader.displayName ? reader.displayName.charAt(0).toUpperCase() : reader.email.charAt(0).toUpperCase()}</span>
                               </div>
                             )}
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-zinc-900">{reader.displayName || 'Unknown Name'}</div>
-                            <div className="text-sm text-zinc-500">{reader.email}</div>
+                            <div className="text-sm font-bold font-serif text-zinc-900">{reader.displayName || 'Unknown Name'}</div>
+                            <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">{reader.email}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">
+                      <td className="px-6 py-6 whitespace-nowrap text-sm text-zinc-500">
                         <select
                           value={reader.role || 'reader'}
                           onChange={(e) => updateReaderRole(reader.email.toLowerCase(), e.target.value as 'reader' | 'writer')}
-                          className="rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-1 border bg-white"
+                          className="rounded-none border-zinc-900 focus:border-red-800 focus:ring-0 sm:text-sm p-2 border bg-transparent font-serif italic"
                         >
                           <option value="reader">Reader</option>
                           <option value="writer">Writer</option>
                         </select>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button onClick={() => handleDeleteReader(reader.id)} className="text-red-600 hover:text-red-900">
+                      <td className="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
+                        <button onClick={() => handleDeleteReader(reader.id)} className="text-red-800 hover:text-red-900 transition-colors">
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </td>
@@ -539,53 +539,53 @@ export default function Admin() {
 
         {activeTab === 'requests' && (
           <>
-            <div className="mb-6">
-              <h2 className="text-xl font-bold text-zinc-900 font-serif">Pending Access Requests</h2>
-              <p className="text-sm text-zinc-500 mt-1">Users who have signed in and are waiting for approval to comment.</p>
+            <div className="mb-12">
+              <h2 className="text-2xl font-black text-zinc-900 font-serif uppercase tracking-widest">Pending Access Requests</h2>
+              <p className="text-sm text-zinc-600 mt-2 font-serif italic">Users who have signed in and are waiting for approval to comment.</p>
             </div>
 
-            <div className="bg-white shadow-sm rounded-lg border border-zinc-200 overflow-hidden max-w-4xl">
-              <table className="min-w-full divide-y divide-zinc-200">
-                <thead className="bg-zinc-50">
+            <div className="bg-transparent border border-zinc-900 overflow-hidden max-w-4xl">
+              <table className="min-w-full divide-y divide-zinc-900">
+                <thead className="bg-zinc-100 border-b border-zinc-900">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Name</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Email</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Date Requested</th>
-                    <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
+                    <th scope="col" className="px-6 py-4 text-left text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Name</th>
+                    <th scope="col" className="px-6 py-4 text-left text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Email</th>
+                    <th scope="col" className="px-6 py-4 text-left text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Date Requested</th>
+                    <th scope="col" className="relative px-6 py-4"><span className="sr-only">Actions</span></th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-zinc-200">
+                <tbody className="bg-transparent divide-y divide-zinc-200">
                   {requestsLoading ? (
-                    <tr><td colSpan={4} className="px-6 py-4 text-center text-sm text-zinc-500">Loading...</td></tr>
+                    <tr><td colSpan={4} className="px-6 py-8 text-center text-sm text-zinc-500 font-serif italic">Loading...</td></tr>
                   ) : requests.length === 0 ? (
-                    <tr><td colSpan={4} className="px-6 py-8 text-center text-sm text-zinc-500">No pending requests.</td></tr>
+                    <tr><td colSpan={4} className="px-6 py-8 text-center text-sm text-zinc-500 font-serif italic">No pending requests.</td></tr>
                   ) : requests.map((request) => (
-                    <tr key={request.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                    <tr key={request.id} className="hover:bg-zinc-50 transition-colors">
+                      <td className="px-6 py-6 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
                             {request.photoURL ? (
-                              <img className="h-10 w-10 rounded-full" src={request.photoURL} alt="" referrerPolicy="no-referrer" />
+                              <img className="h-10 w-10 rounded-none grayscale border border-zinc-900" src={request.photoURL} alt="" referrerPolicy="no-referrer" />
                             ) : (
-                              <div className="h-10 w-10 rounded-full bg-zinc-200 flex items-center justify-center">
-                                <span className="text-zinc-500 font-medium text-sm">{request.name ? request.name.charAt(0).toUpperCase() : request.email.charAt(0).toUpperCase()}</span>
+                              <div className="h-10 w-10 rounded-none border border-zinc-900 bg-zinc-100 flex items-center justify-center">
+                                <span className="text-zinc-900 font-bold font-serif">{request.name ? request.name.charAt(0).toUpperCase() : request.email.charAt(0).toUpperCase()}</span>
                               </div>
                             )}
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-zinc-900">{request.name}</div>
+                            <div className="text-sm font-bold font-serif text-zinc-900">{request.name}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">{request.email}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">
+                      <td className="px-6 py-6 whitespace-nowrap text-[10px] font-bold uppercase tracking-widest text-zinc-500">{request.email}</td>
+                      <td className="px-6 py-6 whitespace-nowrap text-[10px] font-bold uppercase tracking-widest text-zinc-500">
                         {new Date(request.date).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button onClick={() => handleApproveRequest(request)} className="text-green-600 hover:text-green-900 mr-4 font-semibold">
+                      <td className="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
+                        <button onClick={() => handleApproveRequest(request)} className="text-zinc-600 hover:text-zinc-900 mr-6 font-bold uppercase tracking-widest text-[10px] transition-colors">
                           Approve
                         </button>
-                        <button onClick={() => handleDenyRequest(request.email)} className="text-red-600 hover:text-red-900 font-semibold">
+                        <button onClick={() => handleDenyRequest(request.email)} className="text-red-800 hover:text-red-900 font-bold uppercase tracking-widest text-[10px] transition-colors">
                           Deny
                         </button>
                       </td>
@@ -599,63 +599,63 @@ export default function Admin() {
 
         {activeTab === 'writer_applications' && (
           <>
-            <div className="mb-6">
-              <h2 className="text-xl font-bold text-zinc-900 font-serif">Writer Applications</h2>
-              <p className="text-sm text-zinc-500 mt-1">Review applications from readers who want to become writers.</p>
+            <div className="mb-12">
+              <h2 className="text-2xl font-black text-zinc-900 font-serif uppercase tracking-widest">Writer Applications</h2>
+              <p className="text-sm text-zinc-600 mt-2 font-serif italic">Review applications from readers who want to become writers.</p>
             </div>
 
-            <div className="bg-white shadow-sm rounded-lg border border-zinc-200 overflow-hidden max-w-5xl">
-              <table className="min-w-full divide-y divide-zinc-200">
-                <thead className="bg-zinc-50">
+            <div className="bg-transparent border border-zinc-900 overflow-hidden max-w-5xl">
+              <table className="min-w-full divide-y divide-zinc-900">
+                <thead className="bg-zinc-100 border-b border-zinc-900">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">User</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Reason</th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Status</th>
-                    <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
+                    <th scope="col" className="px-6 py-4 text-left text-[10px] font-bold text-zinc-900 uppercase tracking-widest">User</th>
+                    <th scope="col" className="px-6 py-4 text-left text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Reason</th>
+                    <th scope="col" className="px-6 py-4 text-left text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Status</th>
+                    <th scope="col" className="relative px-6 py-4"><span className="sr-only">Actions</span></th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-zinc-200">
+                <tbody className="bg-transparent divide-y divide-zinc-200">
                   {writerApplicationsLoading ? (
-                    <tr><td colSpan={4} className="px-6 py-4 text-center text-sm text-zinc-500">Loading...</td></tr>
+                    <tr><td colSpan={4} className="px-6 py-8 text-center text-sm text-zinc-500 font-serif italic">Loading...</td></tr>
                   ) : writerApplications.length === 0 ? (
-                    <tr><td colSpan={4} className="px-6 py-8 text-center text-sm text-zinc-500">No writer applications.</td></tr>
+                    <tr><td colSpan={4} className="px-6 py-8 text-center text-sm text-zinc-500 font-serif italic">No writer applications.</td></tr>
                   ) : writerApplications.map((app) => (
-                    <tr key={app.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                    <tr key={app.id} className="hover:bg-zinc-50 transition-colors">
+                      <td className="px-6 py-6 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
                             {app.photoURL ? (
-                              <img className="h-10 w-10 rounded-full" src={app.photoURL} alt="" referrerPolicy="no-referrer" />
+                              <img className="h-10 w-10 rounded-none grayscale border border-zinc-900" src={app.photoURL} alt="" referrerPolicy="no-referrer" />
                             ) : (
-                              <div className="h-10 w-10 rounded-full bg-zinc-200 flex items-center justify-center">
-                                <span className="text-zinc-500 font-medium text-sm">{app.name ? app.name.charAt(0).toUpperCase() : app.email.charAt(0).toUpperCase()}</span>
+                              <div className="h-10 w-10 rounded-none border border-zinc-900 bg-zinc-100 flex items-center justify-center">
+                                <span className="text-zinc-900 font-bold font-serif">{app.name ? app.name.charAt(0).toUpperCase() : app.email.charAt(0).toUpperCase()}</span>
                               </div>
                             )}
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-zinc-900">{app.name}</div>
-                            <div className="text-sm text-zinc-500">{app.email}</div>
+                            <div className="text-sm font-bold font-serif text-zinc-900">{app.name}</div>
+                            <div className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">{app.email}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-zinc-500 max-w-md">
+                      <td className="px-6 py-6 text-sm text-zinc-800 max-w-md font-serif leading-relaxed">
                         <p className="line-clamp-3">{app.reason}</p>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                          ${app.status === 'approved' ? 'bg-green-100 text-green-800' : 
-                            app.status === 'pending' ? 'bg-blue-100 text-blue-800' :
-                            'bg-red-100 text-red-800'}`}>
-                          {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                      <td className="px-6 py-6 whitespace-nowrap text-sm text-zinc-500">
+                        <span className={`px-3 py-1 inline-flex text-[10px] font-bold uppercase tracking-widest border rounded-none
+                          ${app.status === 'approved' ? 'border-zinc-900 bg-zinc-900 text-white' : 
+                            app.status === 'pending' ? 'border-zinc-900 bg-zinc-100 text-zinc-900' :
+                            'border-red-800 bg-red-50 text-red-800'}`}>
+                          {app.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <td className="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
                         {app.status === 'pending' && (
                           <>
-                            <button onClick={() => handleApproveWriterApplication(app)} className="text-green-600 hover:text-green-900 mr-4 font-semibold">
+                            <button onClick={() => handleApproveWriterApplication(app)} className="text-zinc-600 hover:text-zinc-900 mr-6 font-bold uppercase tracking-widest text-[10px] transition-colors">
                               Approve
                             </button>
-                            <button onClick={() => handleRejectWriterApplication(app.email)} className="text-red-600 hover:text-red-900 font-semibold">
+                            <button onClick={() => handleRejectWriterApplication(app.email)} className="text-red-800 hover:text-red-900 font-bold uppercase tracking-widest text-[10px] transition-colors">
                               Reject
                             </button>
                           </>
