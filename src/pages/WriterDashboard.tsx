@@ -189,7 +189,7 @@ export default function WriterDashboard() {
           </div>
         )}
 
-        <div className="bg-transparent border border-zinc-900 overflow-hidden">
+        <div className="bg-transparent border border-zinc-900 overflow-x-auto">
           <table className="min-w-full divide-y divide-zinc-900">
             <thead className="bg-zinc-100 border-b border-zinc-900">
               <tr>
@@ -221,7 +221,7 @@ export default function WriterDashboard() {
                         </div>
                       )}
                       {status === 'rejected' && article.rejectionReason && (
-                        <p className="text-xs text-red-800 mt-2 truncate max-w-xs font-serif italic">Reason: {article.rejectionReason}</p>
+                        <p className="text-xs text-red-800 mt-2 truncate max-w-xs font-serif italic whitespace-normal">Reason: {article.rejectionReason}</p>
                       )}
                     </div>
                   </td>
@@ -239,19 +239,21 @@ export default function WriterDashboard() {
                     </span>
                   </td>
                   <td className="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
-                    {(status === 'draft' || status === 'rejected') && (
-                      <button onClick={() => handleSubmitForApproval(article)} className="text-zinc-600 hover:text-zinc-900 mr-4 transition-colors" title="Submit for Approval">
-                        <Send className="h-4 w-4" />
+                    <div className="flex justify-end gap-4">
+                      {(status === 'draft' || status === 'rejected') && (
+                        <button onClick={() => handleSubmitForApproval(article)} className="p-2 text-zinc-600 hover:text-zinc-900 transition-colors" title="Submit for Approval">
+                          <Send className="h-5 w-5" />
+                        </button>
+                      )}
+                      <button onClick={() => handleEdit(article)} className="p-2 text-zinc-600 hover:text-zinc-900 transition-colors" title="Edit">
+                        <Edit2 className="h-5 w-5" />
                       </button>
-                    )}
-                    <button onClick={() => handleEdit(article)} className="text-zinc-600 hover:text-zinc-900 mr-4 transition-colors" title="Edit">
-                      <Edit2 className="h-4 w-4" />
-                    </button>
-                    {(status === 'draft' || status === 'rejected') && (
-                      <button onClick={() => handleDelete(article.id)} className="text-red-800 hover:text-red-900 transition-colors" title="Delete">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    )}
+                      {(status === 'draft' || status === 'rejected') && (
+                        <button onClick={() => handleDelete(article.id)} className="p-2 text-red-800 hover:text-red-900 transition-colors" title="Delete">
+                          <Trash2 className="h-5 w-5" />
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               )})}
