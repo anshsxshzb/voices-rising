@@ -129,18 +129,18 @@ export default function ArticleDetail() {
                 </div>
               </div>
               
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-4">
                 <button 
                   onClick={handleLike} 
-                  className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors px-3 py-1.5 border rounded-none ${hasLiked ? 'bg-red-800 text-white border-red-800 hover:bg-red-900' : 'bg-transparent text-zinc-900 border-zinc-900 hover:bg-zinc-100'}`}
+                  className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors px-4 py-3 sm:px-3 sm:py-1.5 border rounded-none ${hasLiked ? 'bg-red-800 text-white border-red-800 hover:bg-red-900' : 'bg-transparent text-zinc-900 border-zinc-900 hover:bg-zinc-100'}`}
                 >
                   <Heart className={`w-3.5 h-3.5 ${hasLiked ? 'fill-current' : ''}`} /> 
                   {article.likedBy?.length || 0}
                 </button>
-                <button onClick={handleShare} className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-900 hover:bg-zinc-100 transition-colors bg-transparent px-3 py-1.5 border border-zinc-900 rounded-none">
+                <button onClick={handleShare} className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-900 hover:bg-zinc-100 transition-colors bg-transparent px-4 py-3 sm:px-3 sm:py-1.5 border border-zinc-900 rounded-none">
                   <Share2 className="w-3.5 h-3.5" /> Share
                 </button>
-                <button onClick={handleEmbed} className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-900 hover:bg-zinc-100 transition-colors bg-transparent px-3 py-1.5 border border-zinc-900 rounded-none">
+                <button onClick={handleEmbed} className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-900 hover:bg-zinc-100 transition-colors bg-transparent px-4 py-3 sm:px-3 sm:py-1.5 border border-zinc-900 rounded-none">
                   <Code className="w-3.5 h-3.5" /> Embed
                 </button>
               </div>
