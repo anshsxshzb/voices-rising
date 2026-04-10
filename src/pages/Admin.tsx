@@ -339,7 +339,7 @@ export default function Admin() {
               </div>
             )}
 
-            <div className="bg-transparent border border-zinc-900 overflow-hidden">
+            <div className="bg-transparent border border-zinc-900 overflow-x-auto">
               <table className="min-w-full divide-y divide-zinc-900">
                 <thead className="bg-zinc-100 border-b border-zinc-900">
                   <tr>
@@ -360,7 +360,7 @@ export default function Admin() {
                       <td className="px-6 py-6 whitespace-nowrap text-sm font-medium text-zinc-900">
                         <span className="font-serif text-lg font-bold">{article.title}</span>
                         {status === 'rejected' && article.rejectionReason && (
-                          <p className="text-xs text-red-800 mt-2 truncate max-w-xs font-serif italic">Reason: {article.rejectionReason}</p>
+                          <p className="text-xs text-red-800 mt-2 truncate max-w-xs font-serif italic whitespace-normal">Reason: {article.rejectionReason}</p>
                         )}
                       </td>
                       <td className="px-6 py-6 whitespace-nowrap text-[10px] font-bold uppercase tracking-widest text-zinc-500">{article.author}</td>
@@ -375,22 +375,24 @@ export default function Admin() {
                         </span>
                       </td>
                       <td className="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
-                        {status === 'pending' && (
-                          <>
-                            <button onClick={() => handleApproveArticle(article)} className="text-zinc-600 hover:text-zinc-900 mr-4 transition-colors" title="Approve">
-                              <Check className="h-4 w-4" />
-                            </button>
-                            <button onClick={() => setRejectingArticleId(article.id)} className="text-red-800 hover:text-red-900 mr-4 transition-colors" title="Reject">
-                              <X className="h-4 w-4" />
-                            </button>
-                          </>
-                        )}
-                        <button onClick={() => handleEdit(article)} className="text-zinc-600 hover:text-zinc-900 mr-4 transition-colors">
-                          <Edit2 className="h-4 w-4" />
-                        </button>
-                        <button onClick={() => handleDelete(article.id)} className="text-red-800 hover:text-red-900 transition-colors">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        <div className="flex justify-end gap-4">
+                          {status === 'pending' && (
+                            <>
+                              <button onClick={() => handleApproveArticle(article)} className="p-2 text-zinc-600 hover:text-zinc-900 transition-colors" title="Approve">
+                                <Check className="h-5 w-5" />
+                              </button>
+                              <button onClick={() => setRejectingArticleId(article.id)} className="p-2 text-red-800 hover:text-red-900 transition-colors" title="Reject">
+                                <X className="h-5 w-5" />
+                              </button>
+                            </>
+                          )}
+                          <button onClick={() => handleEdit(article)} className="p-2 text-zinc-600 hover:text-zinc-900 transition-colors">
+                            <Edit2 className="h-5 w-5" />
+                          </button>
+                          <button onClick={() => handleDelete(article.id)} className="p-2 text-red-800 hover:text-red-900 transition-colors">
+                            <Trash2 className="h-5 w-5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )})}
@@ -483,7 +485,7 @@ export default function Admin() {
               </div>
             )}
 
-            <div className="bg-transparent border border-zinc-900 overflow-hidden max-w-4xl">
+            <div className="bg-transparent border border-zinc-900 overflow-x-auto max-w-4xl">
               <table className="min-w-full divide-y divide-zinc-900">
                 <thead className="bg-zinc-100 border-b border-zinc-900">
                   <tr>
@@ -525,9 +527,11 @@ export default function Admin() {
                         </select>
                       </td>
                       <td className="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
-                        <button onClick={() => handleDeleteReader(reader.id)} className="text-red-800 hover:text-red-900 transition-colors">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        <div className="flex justify-end gap-4">
+                          <button onClick={() => handleDeleteReader(reader.id)} className="p-2 text-red-800 hover:text-red-900 transition-colors" title="Delete">
+                            <Trash2 className="h-5 w-5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -544,7 +548,7 @@ export default function Admin() {
               <p className="text-sm text-zinc-600 mt-2 font-serif italic">Users who have signed in and are waiting for approval to comment.</p>
             </div>
 
-            <div className="bg-transparent border border-zinc-900 overflow-hidden max-w-4xl">
+            <div className="bg-transparent border border-zinc-900 overflow-x-auto max-w-4xl">
               <table className="min-w-full divide-y divide-zinc-900">
                 <thead className="bg-zinc-100 border-b border-zinc-900">
                   <tr>
@@ -582,12 +586,14 @@ export default function Admin() {
                         {new Date(request.date).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
-                        <button onClick={() => handleApproveRequest(request)} className="text-zinc-600 hover:text-zinc-900 mr-6 font-bold uppercase tracking-widest text-[10px] transition-colors">
-                          Approve
-                        </button>
-                        <button onClick={() => handleDenyRequest(request.email)} className="text-red-800 hover:text-red-900 font-bold uppercase tracking-widest text-[10px] transition-colors">
-                          Deny
-                        </button>
+                        <div className="flex justify-end gap-4">
+                          <button onClick={() => handleApproveRequest(request)} className="p-2 text-zinc-600 hover:text-zinc-900 transition-colors" title="Approve">
+                            <Check className="h-5 w-5" />
+                          </button>
+                          <button onClick={() => handleDenyRequest(request.email)} className="p-2 text-red-800 hover:text-red-900 transition-colors" title="Deny">
+                            <X className="h-5 w-5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -604,7 +610,7 @@ export default function Admin() {
               <p className="text-sm text-zinc-600 mt-2 font-serif italic">Review applications from readers who want to become writers.</p>
             </div>
 
-            <div className="bg-transparent border border-zinc-900 overflow-hidden max-w-5xl">
+            <div className="bg-transparent border border-zinc-900 overflow-x-auto max-w-5xl">
               <table className="min-w-full divide-y divide-zinc-900">
                 <thead className="bg-zinc-100 border-b border-zinc-900">
                   <tr>
@@ -651,14 +657,14 @@ export default function Admin() {
                       </td>
                       <td className="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
                         {app.status === 'pending' && (
-                          <>
-                            <button onClick={() => handleApproveWriterApplication(app)} className="text-zinc-600 hover:text-zinc-900 mr-6 font-bold uppercase tracking-widest text-[10px] transition-colors">
-                              Approve
+                          <div className="flex justify-end gap-4">
+                            <button onClick={() => handleApproveWriterApplication(app)} className="p-2 text-zinc-600 hover:text-zinc-900 transition-colors" title="Approve">
+                              <Check className="h-5 w-5" />
                             </button>
-                            <button onClick={() => handleRejectWriterApplication(app.email)} className="text-red-800 hover:text-red-900 font-bold uppercase tracking-widest text-[10px] transition-colors">
-                              Reject
+                            <button onClick={() => handleRejectWriterApplication(app.email)} className="p-2 text-red-800 hover:text-red-900 transition-colors" title="Reject">
+                              <X className="h-5 w-5" />
                             </button>
-                          </>
+                          </div>
                         )}
                       </td>
                     </tr>
