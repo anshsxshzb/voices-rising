@@ -63,7 +63,7 @@ export default function Articles() {
               </span>
               <button
                 onClick={() => setSelectedTag(null)}
-                className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors border rounded-none ${
+                className={`px-4 py-3 sm:py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors border rounded-none ${
                   selectedTag === null
                     ? 'border-red-800 bg-red-800 text-white'
                     : 'border-zinc-900 text-zinc-900 hover:bg-zinc-100'
@@ -75,7 +75,7 @@ export default function Articles() {
                 <button
                   key={tag}
                   onClick={() => setSelectedTag(tag)}
-                  className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors border rounded-none ${
+                  className={`px-4 py-3 sm:py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors border rounded-none ${
                     selectedTag === tag
                       ? 'border-red-800 bg-red-800 text-white'
                       : 'border-zinc-900 text-zinc-900 hover:bg-zinc-100'
