@@ -33,18 +33,18 @@ export default function Articles() {
   }, [publishedArticles, searchQuery, selectedTag]);
 
   return (
-    <div className="bg-white min-h-screen py-12">
+    <div className="bg-[#FAFAFA] min-h-screen py-16 sm:py-24">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-zinc-900 font-serif sm:text-5xl">All Articles</h1>
-          <p className="mt-4 text-xl text-zinc-500">
+        <div className="text-center mb-16 border-b border-zinc-900 pb-12">
+          <h1 className="text-5xl font-black text-zinc-900 font-serif sm:text-7xl uppercase tracking-tighter">All Articles</h1>
+          <p className="mt-6 text-xl text-zinc-600 font-serif italic max-w-2xl mx-auto">
             Explore stories, essays, and reflections on human rights by teenagers across India.
           </p>
         </div>
 
-        <div className="mb-12 space-y-6">
+        <div className="mb-16 space-y-8">
           <div className="relative max-w-2xl mx-auto">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <div className="absolute inset-y-0 left-0 pl-0 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-zinc-400" />
             </div>
             <input
@@ -52,21 +52,21 @@ export default function Articles() {
               placeholder="Search articles by title, author, or content..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="block w-full pl-10 pr-3 py-3 border border-zinc-300 rounded-xl leading-5 bg-white placeholder-zinc-500 focus:outline-none focus:placeholder-zinc-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm shadow-sm transition-shadow"
+              className="block w-full pl-8 pr-3 py-3 border-0 border-b-2 border-zinc-900 bg-transparent text-zinc-900 placeholder-zinc-500 focus:ring-0 focus:border-red-800 sm:text-sm transition-colors font-serif italic"
             />
           </div>
 
           {allTags.length > 0 && (
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              <span className="text-sm text-zinc-500 flex items-center gap-1 mr-2">
-                <Tag className="h-4 w-4" /> Filter by:
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 flex items-center gap-1 mr-2">
+                <Tag className="h-3 w-3" /> Filter by:
               </span>
               <button
                 onClick={() => setSelectedTag(null)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors border rounded-none ${
                   selectedTag === null
-                    ? 'bg-indigo-100 text-indigo-800'
-                    : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+                    ? 'border-red-800 bg-red-800 text-white'
+                    : 'border-zinc-900 text-zinc-900 hover:bg-zinc-100'
                 }`}
               >
                 All
@@ -75,10 +75,10 @@ export default function Articles() {
                 <button
                   key={tag}
                   onClick={() => setSelectedTag(tag)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors border rounded-none ${
                     selectedTag === tag
-                      ? 'bg-indigo-100 text-indigo-800'
-                      : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+                      ? 'border-red-800 bg-red-800 text-white'
+                      : 'border-zinc-900 text-zinc-900 hover:bg-zinc-100'
                   }`}
                 >
                   {tag}
@@ -88,72 +88,72 @@ export default function Articles() {
           )}
         </div>
 
-        <div className="space-y-12">
+        <div className="space-y-16">
           {loading ? (
             <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-800"></div>
             </div>
           ) : filteredArticles.length === 0 ? (
-            <div className="text-center py-12 bg-zinc-50 rounded-2xl border border-zinc-200">
-              <Search className="h-12 w-12 text-zinc-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-zinc-900">No articles found</h3>
-              <p className="mt-2 text-zinc-500">Try adjusting your search or filter criteria.</p>
+            <div className="text-center py-16 border-t border-b border-zinc-200">
+              <Search className="h-8 w-8 text-zinc-400 mx-auto mb-4" />
+              <h3 className="text-lg font-bold uppercase tracking-widest text-zinc-900">No articles found</h3>
+              <p className="mt-2 text-zinc-500 font-serif italic">Try adjusting your search or filter criteria.</p>
             </div>
           ) : (
             filteredArticles.map((article) => (
-              <article key={article.id} className="bg-white border border-zinc-200 rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-500 mb-4">
+              <article key={article.id} className="group border-b border-zinc-200 pb-16 last:border-0">
+                <div className="flex flex-wrap items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-6">
                   <div className="flex items-center gap-1">
-                    <User className="h-4 w-4" />
-                    <span className="font-medium text-zinc-900">{article.author}</span>
+                    <User className="h-3.5 w-3.5" />
+                    <span className="text-zinc-900">{article.author}</span>
                   </div>
                   <span className="hidden sm:inline">&bull;</span>
                   <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
+                    <Calendar className="h-3.5 w-3.5" />
                     <time dateTime={article.date}>
                       {new Date(article.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
                     </time>
                   </div>
                   <>
                     <span className="hidden sm:inline">&bull;</span>
-                    <div className="flex items-center gap-1 text-indigo-600 font-medium">
+                    <div className="flex items-center gap-1 text-red-800">
                       <span>{article.readTime || calculateReadTime(article.content)} min read</span>
                     </div>
                   </>
                   <span className="hidden sm:inline">&bull;</span>
                   <div className="flex items-center gap-1" title="Views">
-                    <Eye className="h-4 w-4" />
+                    <Eye className="h-3.5 w-3.5" />
                     <span>{article.views || 0}</span>
                   </div>
                   <span className="hidden sm:inline">&bull;</span>
                   <div className="flex items-center gap-1" title="Likes">
-                    <Heart className="h-4 w-4" />
+                    <Heart className="h-3.5 w-3.5" />
                     <span>{article.likedBy?.length || 0}</span>
                   </div>
                 </div>
                 
-                <h2 className="text-2xl font-bold text-zinc-900 font-serif mb-4">
-                  <Link to={`/articles/${article.id}`} className="hover:text-indigo-600 transition-colors">
+                <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 font-serif mb-4 leading-tight">
+                  <Link to={`/articles/${article.id}`} className="hover:text-red-800 transition-colors">
                     {article.title}
                   </Link>
                 </h2>
                 
-                <div className="prose prose-indigo max-w-none text-zinc-600 mb-6">
+                <div className="prose prose-lg max-w-none text-zinc-600 mb-8 font-serif leading-relaxed">
                   <p>{article.preview}</p>
                 </div>
                 
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <Link
                     to={`/articles/${article.id}`}
-                    className="inline-flex items-center text-indigo-600 font-medium hover:text-indigo-800 transition-colors"
+                    className="inline-flex items-center text-xs font-bold uppercase tracking-widest text-zinc-900 hover:text-red-800 transition-colors"
                   >
-                    Read Full Article <ArrowRight className="ml-1.5 w-4 h-4" />
+                    Read Full Article <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
                   
                   {article.tags && article.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {article.tags.map(tag => (
-                        <span key={tag} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 text-zinc-800">
+                        <span key={tag} className="inline-flex items-center px-2 py-1 border border-zinc-300 text-[10px] font-bold uppercase tracking-widest text-zinc-500">
                           {tag}
                         </span>
                       ))}
