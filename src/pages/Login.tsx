@@ -144,16 +144,16 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center bg-zinc-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-sm border border-zinc-200">
+    <div className="min-h-[80vh] flex items-center justify-center bg-[#FAFAFA] py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-transparent p-10 border border-zinc-900">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-zinc-900 font-serif">
+          <h2 className="mt-6 text-center text-3xl font-black text-zinc-900 font-serif uppercase tracking-widest">
             Sign in to your account
           </h2>
         </div>
         <div className="mt-8 space-y-6">
           {error && (
-            <div className="text-red-500 text-sm text-center font-medium">
+            <div className="text-red-800 text-xs font-bold uppercase tracking-widest text-center">
               {error}
             </div>
           )}
@@ -162,9 +162,9 @@ export default function Login() {
             <button
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-zinc-300 text-sm font-medium rounded-lg text-zinc-700 bg-white hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-50"
+              className="group relative w-full flex justify-center py-4 px-6 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-zinc-900 bg-transparent hover:bg-zinc-100 focus:outline-none focus:ring-0 transition-colors disabled:opacity-50"
             >
-              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                 <path
                   fill="currentColor"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
