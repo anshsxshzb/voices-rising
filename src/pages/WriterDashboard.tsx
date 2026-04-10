@@ -97,22 +97,22 @@ export default function WriterDashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-zinc-50 py-12">
+    <div className="min-h-screen bg-[#FAFAFA] py-16 sm:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <h1 className="text-3xl font-extrabold text-zinc-900 font-serif">Writer Dashboard</h1>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 border-b border-zinc-900 pb-8 gap-4">
+          <h1 className="text-4xl font-black text-zinc-900 font-serif uppercase tracking-widest">Writer Dashboard</h1>
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-          <div className="flex space-x-2 overflow-x-auto pb-2 sm:pb-0">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 gap-6">
+          <div className="flex space-x-3 overflow-x-auto pb-2 sm:pb-0">
             {(['all', 'published', 'pending', 'draft', 'rejected'] as const).map(filter => (
               <button
                 key={filter}
                 onClick={() => setActiveTab(filter)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize whitespace-nowrap ${
+                className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-colors border rounded-none ${
                   activeTab === filter 
-                    ? 'bg-indigo-600 text-white' 
-                    : 'bg-white text-zinc-600 hover:bg-zinc-100 border border-zinc-200'
+                    ? 'border-red-800 bg-red-800 text-white' 
+                    : 'border-zinc-900 text-zinc-900 bg-transparent hover:bg-zinc-100'
                 }`}
               >
                 {filter}
@@ -121,7 +121,7 @@ export default function WriterDashboard() {
           </div>
           <button
             onClick={() => { setIsAdding(true); setEditForm({ status: 'draft' }); setTagsInput(''); }}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+            className="inline-flex items-center px-6 py-3 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-white bg-zinc-900 hover:bg-zinc-800"
           >
             <Plus className="h-4 w-4 mr-2" />
             New Draft
@@ -129,58 +129,58 @@ export default function WriterDashboard() {
         </div>
 
         {(isAdding || isEditing) && (
-          <div className="bg-white shadow-sm rounded-lg p-6 mb-8 border border-zinc-200">
-            <h2 className="text-xl font-bold text-zinc-900 mb-4 font-serif">
+          <div className="bg-transparent border border-zinc-900 p-8 mb-12">
+            <h2 className="text-2xl font-black text-zinc-900 mb-8 font-serif uppercase tracking-widest">
               {isAdding ? 'Create New Draft' : 'Edit Article'}
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-zinc-700">Title</label>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-900 mb-2">Title</label>
                 <input
                   type="text"
                   value={editForm.title || ''}
                   onChange={e => setEditForm({ ...editForm, title: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                  className="block w-full border-zinc-900 focus:border-red-800 focus:ring-0 sm:text-sm p-3 border bg-transparent font-serif italic"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-zinc-700">Preview</label>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-900 mb-2">Preview</label>
                 <textarea
                   value={editForm.preview || ''}
                   onChange={e => setEditForm({ ...editForm, preview: e.target.value })}
                   rows={2}
-                  className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                  className="block w-full border-zinc-900 focus:border-red-800 focus:ring-0 sm:text-sm p-3 border bg-transparent font-serif italic"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-zinc-700">Tags (comma separated)</label>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-900 mb-2">Tags (comma separated)</label>
                 <input
                   type="text"
                   value={tagsInput}
                   onChange={e => setTagsInput(e.target.value)}
                   placeholder="e.g. human rights, education, youth"
-                  className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                  className="block w-full border-zinc-900 focus:border-red-800 focus:ring-0 sm:text-sm p-3 border bg-transparent font-serif italic"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-zinc-700">Content</label>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-900 mb-2">Content</label>
                 <textarea
                   value={editForm.content || ''}
                   onChange={e => setEditForm({ ...editForm, content: e.target.value })}
                   rows={6}
-                  className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+                  className="block w-full border-zinc-900 focus:border-red-800 focus:ring-0 sm:text-sm p-3 border bg-transparent font-serif italic"
                 />
               </div>
-              <div className="flex justify-end gap-3 mt-6">
+              <div className="flex justify-end gap-3 mt-8">
                 <button
                   onClick={() => { setIsAdding(false); setIsEditing(null); setEditForm({}); setTagsInput(''); }}
-                  className="inline-flex items-center px-4 py-2 border border-zinc-300 shadow-sm text-sm font-medium rounded-md text-zinc-700 bg-white hover:bg-zinc-50"
+                  className="inline-flex items-center px-6 py-3 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-zinc-900 bg-transparent hover:bg-zinc-100"
                 >
                   <X className="h-4 w-4 mr-2" /> Cancel
                 </button>
                 <button
                   onClick={isAdding ? handleAdd : handleSave}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                  className="inline-flex items-center px-6 py-3 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-white bg-zinc-900 hover:bg-zinc-800"
                 >
                   <Check className="h-4 w-4 mr-2" /> Save Draft
                 </button>
@@ -189,66 +189,66 @@ export default function WriterDashboard() {
           </div>
         )}
 
-        <div className="bg-white shadow-sm rounded-lg overflow-hidden border border-zinc-200">
-          <table className="min-w-full divide-y divide-zinc-200">
-            <thead className="bg-zinc-50">
+        <div className="bg-transparent border border-zinc-900 overflow-hidden">
+          <table className="min-w-full divide-y divide-zinc-900">
+            <thead className="bg-zinc-100 border-b border-zinc-900">
               <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Title</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Date</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">Status</th>
-                <th scope="col" className="relative px-6 py-3"><span className="sr-only">Actions</span></th>
+                <th scope="col" className="px-6 py-4 text-left text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Title</th>
+                <th scope="col" className="px-6 py-4 text-left text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Date</th>
+                <th scope="col" className="px-6 py-4 text-left text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Status</th>
+                <th scope="col" className="relative px-6 py-4"><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-zinc-200">
+            <tbody className="bg-transparent divide-y divide-zinc-200">
               {articlesLoading ? (
-                <tr><td colSpan={4} className="px-6 py-4 text-center text-sm text-zinc-500">Loading...</td></tr>
+                <tr><td colSpan={4} className="px-6 py-8 text-center text-sm text-zinc-500 font-serif italic">Loading...</td></tr>
               ) : filteredArticles.length === 0 ? (
-                <tr><td colSpan={4} className="px-6 py-4 text-center text-sm text-zinc-500">No articles found.</td></tr>
+                <tr><td colSpan={4} className="px-6 py-8 text-center text-sm text-zinc-500 font-serif italic">No articles found.</td></tr>
               ) : filteredArticles.map((article) => {
                 const status = article.status || (article.published ? 'published' : 'draft');
                 return (
-                <tr key={article.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900">
+                <tr key={article.id} className="hover:bg-zinc-50 transition-colors">
+                  <td className="px-6 py-6 whitespace-nowrap text-sm font-medium text-zinc-900">
                     <div className="flex flex-col">
-                      <span>{article.title}</span>
+                      <span className="font-serif text-lg font-bold">{article.title}</span>
                       {article.tags && article.tags.length > 0 && (
-                        <div className="flex gap-1 mt-1">
+                        <div className="flex gap-2 mt-2">
                           {article.tags.map(tag => (
-                            <span key={tag} className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-zinc-100 text-zinc-600">
+                            <span key={tag} className="inline-flex items-center px-2 py-1 border border-zinc-300 text-[10px] font-bold uppercase tracking-widest text-zinc-600">
                               {tag}
                             </span>
                           ))}
                         </div>
                       )}
                       {status === 'rejected' && article.rejectionReason && (
-                        <p className="text-xs text-red-500 mt-1 truncate max-w-xs">Reason: {article.rejectionReason}</p>
+                        <p className="text-xs text-red-800 mt-2 truncate max-w-xs font-serif italic">Reason: {article.rejectionReason}</p>
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">
+                  <td className="px-6 py-6 whitespace-nowrap text-[10px] font-bold uppercase tracking-widest text-zinc-500">
                     {article.date}
-                    {article.readTime && <div className="text-xs mt-1">{article.readTime} min read</div>}
+                    {article.readTime && <div className="mt-1">{article.readTime} min read</div>}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-500">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                      ${status === 'published' ? 'bg-green-100 text-green-800' : 
-                        status === 'pending' ? 'bg-blue-100 text-blue-800' :
-                        status === 'rejected' ? 'bg-red-100 text-red-800' :
-                        'bg-yellow-100 text-yellow-800'}`}>
-                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                  <td className="px-6 py-6 whitespace-nowrap text-sm text-zinc-500">
+                    <span className={`px-3 py-1 inline-flex text-[10px] font-bold uppercase tracking-widest border rounded-none
+                      ${status === 'published' ? 'border-zinc-900 bg-zinc-900 text-white' : 
+                        status === 'pending' ? 'border-zinc-900 bg-zinc-100 text-zinc-900' :
+                        status === 'rejected' ? 'border-red-800 bg-red-50 text-red-800' :
+                        'border-zinc-300 bg-transparent text-zinc-600'}`}>
+                      {status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <td className="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
                     {(status === 'draft' || status === 'rejected') && (
-                      <button onClick={() => handleSubmitForApproval(article)} className="text-indigo-600 hover:text-indigo-900 mr-4" title="Submit for Approval">
+                      <button onClick={() => handleSubmitForApproval(article)} className="text-zinc-600 hover:text-zinc-900 mr-4 transition-colors" title="Submit for Approval">
                         <Send className="h-4 w-4" />
                       </button>
                     )}
-                    <button onClick={() => handleEdit(article)} className="text-indigo-600 hover:text-indigo-900 mr-4" title="Edit">
+                    <button onClick={() => handleEdit(article)} className="text-zinc-600 hover:text-zinc-900 mr-4 transition-colors" title="Edit">
                       <Edit2 className="h-4 w-4" />
                     </button>
                     {(status === 'draft' || status === 'rejected') && (
-                      <button onClick={() => handleDelete(article.id)} className="text-red-600 hover:text-red-900" title="Delete">
+                      <button onClick={() => handleDelete(article.id)} className="text-red-800 hover:text-red-900 transition-colors" title="Delete">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     )}
