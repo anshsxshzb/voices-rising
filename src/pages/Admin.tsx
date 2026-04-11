@@ -202,22 +202,22 @@ export default function Admin() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 border-b border-zinc-900 pb-8 gap-4">
           <h1 className="text-4xl font-black text-zinc-900 font-serif uppercase tracking-widest">Admin Dashboard</h1>
           
-          <div className="flex space-x-4 overflow-x-auto pb-2 sm:pb-0">
+          <div className="flex space-x-4 overflow-x-auto pb-2 sm:pb-0 w-full">
             <button
               onClick={() => setActiveTab('articles')}
-              className={`flex items-center px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'articles' ? 'border-red-800 text-red-800' : 'border-transparent text-zinc-500 hover:text-zinc-900 hover:border-zinc-300'}`}
+              className={`flex items-center px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 whitespace-nowrap shrink-0 ${activeTab === 'articles' ? 'border-red-800 text-red-800' : 'border-transparent text-zinc-500 hover:text-zinc-900 hover:border-zinc-300'}`}
             >
               <FileText className="w-4 h-4 mr-2" /> Articles
             </button>
             <button
               onClick={() => setActiveTab('readers')}
-              className={`flex items-center px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'readers' ? 'border-red-800 text-red-800' : 'border-transparent text-zinc-500 hover:text-zinc-900 hover:border-zinc-300'}`}
+              className={`flex items-center px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 whitespace-nowrap shrink-0 ${activeTab === 'readers' ? 'border-red-800 text-red-800' : 'border-transparent text-zinc-500 hover:text-zinc-900 hover:border-zinc-300'}`}
             >
               <Users className="w-4 h-4 mr-2" /> Readers
             </button>
             <button
               onClick={() => setActiveTab('requests')}
-              className={`flex items-center px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'requests' ? 'border-red-800 text-red-800' : 'border-transparent text-zinc-500 hover:text-zinc-900 hover:border-zinc-300'}`}
+              className={`flex items-center px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 whitespace-nowrap shrink-0 ${activeTab === 'requests' ? 'border-red-800 text-red-800' : 'border-transparent text-zinc-500 hover:text-zinc-900 hover:border-zinc-300'}`}
             >
               <Bell className="w-4 h-4 mr-2" /> Requests
               {requests.length > 0 && (
@@ -228,7 +228,7 @@ export default function Admin() {
             </button>
             <button
               onClick={() => setActiveTab('writer_applications')}
-              className={`flex items-center px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'writer_applications' ? 'border-red-800 text-red-800' : 'border-transparent text-zinc-500 hover:text-zinc-900 hover:border-zinc-300'}`}
+              className={`flex items-center px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors border-b-2 whitespace-nowrap shrink-0 ${activeTab === 'writer_applications' ? 'border-red-800 text-red-800' : 'border-transparent text-zinc-500 hover:text-zinc-900 hover:border-zinc-300'}`}
             >
               <FileText className="w-4 h-4 mr-2" /> Writer Apps
               {writerApplications.filter(app => app.status === 'pending').length > 0 && (
@@ -243,12 +243,12 @@ export default function Admin() {
         {activeTab === 'articles' && (
           <>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 gap-6">
-              <div className="flex space-x-3 overflow-x-auto pb-2 sm:pb-0">
+              <div className="flex space-x-3 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto">
                 {(['all', 'published', 'pending', 'draft', 'rejected'] as const).map(filter => (
                   <button
                     key={filter}
                     onClick={() => setArticleFilter(filter)}
-                    className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-colors border rounded-none ${
+                    className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-colors border rounded-none whitespace-nowrap shrink-0 ${
                       articleFilter === filter 
                         ? 'border-red-800 bg-red-800 text-white' 
                         : 'border-zinc-900 text-zinc-900 bg-transparent hover:bg-zinc-100'
