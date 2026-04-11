@@ -104,12 +104,12 @@ export default function WriterDashboard() {
         </div>
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 gap-6">
-          <div className="flex space-x-3 overflow-x-auto pb-2 sm:pb-0">
+          <div className="flex space-x-3 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto">
             {(['all', 'published', 'pending', 'draft', 'rejected'] as const).map(filter => (
               <button
                 key={filter}
                 onClick={() => setActiveTab(filter)}
-                className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-colors border rounded-none ${
+                className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-colors border rounded-none whitespace-nowrap shrink-0 ${
                   activeTab === filter 
                     ? 'border-red-800 bg-red-800 text-white' 
                     : 'border-zinc-900 text-zinc-900 bg-transparent hover:bg-zinc-100'
