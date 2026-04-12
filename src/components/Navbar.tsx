@@ -1,16 +1,104 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { LogOut, PenTool, User, Bell, Menu, X } from 'lucide-react';
+import { LogOut, PenTool, User, Bell, Menu, X, BellRing } from 'lucide-react';
 import { auth } from '../lib/firebase';
-import { useUserRole, useNotifications, markNotificationRead } from '../lib/storage';
-import { useState } from 'react';
+import { useUserRole, useNotifications, markNotificationRead, useArticles } from '../lib/storage';
+import { useState, useEffect, useRef } from 'react';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const userRole = useUserRole();
   const notifications = useNotifications();
+  const { articles } = useArticles();
   const [showNotifications, setShowNotifications] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [permission, setPermission] = useState<NotificationPermission>('default');
   const unreadCount = notifications.filter(n => !n.read).length;
+  
+  // Keep track of the latest notification we've seen so we don't alert old ones
+  const lastSeenNotificationId = useRef<string | null>(null);
+  // Keep track of the latest article we've seen
+  const lastSeenArticleId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if ('Notification' in window) {
+      setPermission(Notification.permission);
+    }
+  }, []);
+
+  // Listen for personal notifications (role changes, approvals, etc.)
+  useEffect(() => {
+    if (notifications.length === 0) return;
+    
+    const latestNotification = notifications[0]; 
+    
+    if (lastSeenNotificationId.current === null) {
+      lastSeenNotificationId.current = latestNotification.id;
+      return;
+    }
+
+    if (latestNotification.id !== lastSeenNotificationId.current && !latestNotification.read) {
+      lastSeenNotificationId.current = latestNotification.id;
+      
+      if (permission === 'granted') {
+        const title = latestNotification.type === 'approved' ? 'Good News!' : 
+                      latestNotification.type === 'rejected' ? 'Update on your article' : 
+                      'New Notification';
+                      
+        const notification = new Notification(title, {
+          body: latestNotification.message,
+          icon: '/icon-192.png',
+          badge: '/icon-192.png'
+        });
+
+        notification.onclick = () => {
+          window.focus();
+          notification.close();
+        };
+      }
+    }
+  }, [notifications, permission]);
+
+  // Listen for new global articles
+  useEffect(() => {
+    const publishedArticles = articles.filter(a => a.published);
+    if (publishedArticles.length === 0) return;
+
+    // Articles are sorted newest first by useArticles
+    const latestArticle = publishedArticles[0];
+
+    if (lastSeenArticleId.current === null) {
+      lastSeenArticleId.current = latestArticle.id;
+      return;
+    }
+
+    if (latestArticle.id !== lastSeenArticleId.current) {
+      lastSeenArticleId.current = latestArticle.id;
+
+      // Don't notify the author about their own article being published (they already get a personal notification)
+      if (permission === 'granted' && latestArticle.authorEmail !== auth.currentUser?.email) {
+        const notification = new Notification('New Article Published!', {
+          body: `"${latestArticle.title}" by ${latestArticle.author}`,
+          icon: '/icon-192.png',
+          badge: '/icon-192.png'
+        });
+
+        notification.onclick = () => {
+          window.focus();
+          navigate(`/articles/${latestArticle.id}`);
+          notification.close();
+        };
+      }
+    }
+  }, [articles, permission, navigate]);
+
+  const requestNotificationPermission = async () => {
+    if (!('Notification' in window)) {
+      alert('This browser does not support desktop notifications.');
+      return;
+    }
+    const newPermission = await Notification.requestPermission();
+    setPermission(newPermission);
+  };
 
   const handleLogout = async () => {
     sessionStorage.setItem('isLoggingOut', 'true');
@@ -62,8 +150,16 @@ export default function Navbar() {
                 {showNotifications && (
                   <div className="origin-top-right absolute right-0 mt-2 w-72 rounded-none border border-zinc-900 shadow-xl bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <div className="py-1">
-                      <div className="px-4 py-2 border-b border-zinc-200">
+                      <div className="px-4 py-2 border-b border-zinc-200 flex justify-between items-center">
                         <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-900">Notifications</h3>
+                        {permission === 'default' && (
+                          <button 
+                            onClick={requestNotificationPermission}
+                            className="text-[10px] text-red-800 hover:text-red-900 font-bold uppercase tracking-widest flex items-center gap-1"
+                          >
+                            <BellRing className="w-3 h-3" /> Enable
+                          </button>
+                        )}
                       </div>
                       <div className="max-h-60 overflow-y-auto">
                         {notifications.length === 0 ? (
@@ -136,8 +232,16 @@ export default function Navbar() {
                   {showNotifications && (
                     <div className="origin-top-right absolute right-0 mt-2 w-80 rounded-none border border-zinc-900 shadow-xl bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <div className="py-1">
-                        <div className="px-4 py-2 border-b border-zinc-200">
+                        <div className="px-4 py-2 border-b border-zinc-200 flex justify-between items-center">
                           <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-900">Notifications</h3>
+                          {permission === 'default' && (
+                            <button 
+                              onClick={requestNotificationPermission}
+                              className="text-[10px] text-red-800 hover:text-red-900 font-bold uppercase tracking-widest flex items-center gap-1"
+                            >
+                              <BellRing className="w-3 h-3" /> Enable
+                            </button>
+                          )}
                         </div>
                         <div className="max-h-60 overflow-y-auto">
                           {notifications.length === 0 ? (
