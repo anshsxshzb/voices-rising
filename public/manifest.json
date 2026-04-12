@@ -2,7 +2,7 @@
   "name": "Voices Rising",
   "short_name": "Voices Rising",
   "description": "Empowering teenagers in India to write, reflect, and advocate for human rights.",
-  "start_url": "https://voices-rising.onrender.com",
+  "start_url": "/",
   "id": "/",
   "display": "standalone",
   "orientation": "portrait",
