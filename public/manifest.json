@@ -42,14 +42,14 @@
   ],
   "screenshots": [
     {
-      "src": "https://images.unsplash.com/photo-1455390582262-044cdead2708?auto=format&amp;fit=crop&amp;w=1080&amp;h=1920&amp;q=80",
+      "src": "https://images.unsplash.com/photo-1455390582262-044cdead2708?auto=format&fit=crop&w=1080&h=1920&q=80",
       "sizes": "1080x1920",
       "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Voices Rising Home Page"
     },
     {
-      "src": "https://images.unsplash.com/photo-1455390582262-044cdead2708?auto=format&amp;fit=crop&amp;w=1920&amp;h=1080&amp;q=80",
+      "src": "https://images.unsplash.com/photo-1455390582262-044cdead2708?auto=format&fit=crop&w=1920&h=1080&q=80",
       "sizes": "1920x1080",
       "type": "image/jpeg",
       "form_factor": "wide",
