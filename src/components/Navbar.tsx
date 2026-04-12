@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { LogOut, PenTool, User, Bell, Menu, X, BellRing } from 'lucide-react';
+import { LogOut, PenTool, User, Bell, Menu, X, BellRing, Download } from 'lucide-react';
 import { auth } from '../lib/firebase';
 import { useUserRole, useNotifications, markNotificationRead, useArticles } from '../lib/storage';
 import { useState, useEffect, useRef } from 'react';
@@ -272,6 +272,14 @@ export default function Navbar() {
                   <User className="h-4 w-4" />
                   {userRole === 'admin' ? 'Admin' : userRole === 'writer' ? 'Writer' : userRole === 'reader' ? 'Reader' : 'Pending'}
                 </span>
+                <a
+                  href="/app-release-signed.apk"
+                  download
+                  className="ml-2 inline-flex items-center px-4 py-1.5 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-zinc-900 bg-transparent hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-900"
+                >
+                  <Download className="h-3.5 w-3.5 mr-1.5" />
+                  App
+                </a>
                 <button
                   onClick={handleLogout}
                   className="ml-2 inline-flex items-center px-4 py-1.5 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-white bg-zinc-900 hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-900"
@@ -281,12 +289,22 @@ export default function Navbar() {
                 </button>
               </div>
             ) : (
-              <Link
-                to="/login"
-                className="inline-flex items-center px-5 py-2 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-white bg-red-800 hover:bg-red-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-800"
-              >
-                Login
-              </Link>
+              <div className="flex items-center gap-4">
+                <a
+                  href="/app-release-signed.apk"
+                  download
+                  className="inline-flex items-center px-4 py-1.5 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-zinc-900 bg-transparent hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-900"
+                >
+                  <Download className="h-3.5 w-3.5 mr-1.5" />
+                  Get App
+                </a>
+                <Link
+                  to="/login"
+                  className="inline-flex items-center px-5 py-2 border border-zinc-900 text-xs font-bold uppercase tracking-widest rounded-none text-white bg-red-800 hover:bg-red-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-800"
+                >
+                  Login
+                </Link>
+              </div>
             )}
           </div>
         </div>
@@ -352,6 +370,14 @@ export default function Navbar() {
                     Apply to Write
                   </Link>
                 )}
+                <a
+                  href="/app-release-signed.apk"
+                  download
+                  className="w-full text-left flex items-center pl-3 pr-4 py-3 border-l-4 border-transparent text-sm font-bold uppercase tracking-widest text-zinc-900 hover:bg-zinc-100 hover:border-zinc-900"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download App
+                </a>
                 <button
                   onClick={() => {
                     handleLogout();
@@ -363,7 +389,15 @@ export default function Navbar() {
                 </button>
               </div>
             ) : (
-              <div className="px-4 py-3">
+              <div className="px-4 py-3 space-y-3">
+                <a
+                  href="/app-release-signed.apk"
+                  download
+                  className="w-full flex justify-center items-center px-4 py-3 border border-zinc-900 text-sm font-bold uppercase tracking-widest rounded-none text-zinc-900 bg-transparent hover:bg-zinc-100"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download App
+                </a>
                 <Link
                   to="/login"
                   onClick={() => setIsMobileMenuOpen(false)}
