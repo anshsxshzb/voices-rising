@@ -1,13 +1,16 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useArticles, calculateReadTime } from '../lib/storage';
-import { Calendar, User, ArrowRight, Eye, Heart, Search, Tag } from 'lucide-react';
+import { Calendar, User, ArrowRight, Eye, Heart, Search, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
 import { auth } from '../lib/firebase';
 
 export default function Articles() {
   const { articles, loading } = useArticles();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'most_viewed' | 'most_liked'>('newest');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   const publishedArticles = articles.filter(a => a.published);
 
@@ -19,8 +22,13 @@ export default function Articles() {
     return Array.from(tags).sort();
   }, [publishedArticles]);
 
-  const filteredArticles = useMemo(() => {
-    return publishedArticles.filter(article => {
+  // Reset page when filters change
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedTag, sortBy]);
+
+  const filteredAndSortedArticles = useMemo(() => {
+    let result = publishedArticles.filter(article => {
       const matchesSearch = 
         article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         article.preview.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -30,7 +38,29 @@ export default function Articles() {
       
       return matchesSearch && matchesTag;
     });
-  }, [publishedArticles, searchQuery, selectedTag]);
+
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case 'oldest':
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        case 'most_viewed':
+          return (b.views || 0) - (a.views || 0);
+        case 'most_liked':
+          return (b.likedBy?.length || 0) - (a.likedBy?.length || 0);
+        case 'newest':
+        default:
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+      }
+    });
+
+    return result;
+  }, [publishedArticles, searchQuery, selectedTag, sortBy]);
+
+  const totalPages = Math.ceil(filteredAndSortedArticles.length / ITEMS_PER_PAGE);
+  const paginatedArticles = filteredAndSortedArticles.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <div className="bg-[#FAFAFA] min-h-screen py-16 sm:py-24">
@@ -43,17 +73,31 @@ export default function Articles() {
         </div>
 
         <div className="mb-16 space-y-8">
-          <div className="relative max-w-2xl mx-auto">
-            <div className="absolute inset-y-0 left-0 pl-0 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-zinc-400" />
+          <div className="flex flex-col sm:flex-row gap-4 max-w-3xl mx-auto">
+            <div className="relative flex-1">
+              <div className="absolute inset-y-0 left-0 pl-0 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-zinc-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search articles by title, author, or content..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="block w-full pl-8 pr-3 py-3 border-0 border-b-2 border-zinc-900 bg-transparent text-zinc-900 placeholder-zinc-500 focus:ring-0 focus:border-red-800 sm:text-sm transition-colors font-serif italic"
+              />
             </div>
-            <input
-              type="text"
-              placeholder="Search articles by title, author, or content..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="block w-full pl-8 pr-3 py-3 border-0 border-b-2 border-zinc-900 bg-transparent text-zinc-900 placeholder-zinc-500 focus:ring-0 focus:border-red-800 sm:text-sm transition-colors font-serif italic"
-            />
+            <div className="sm:w-48">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="block w-full py-3 pl-3 pr-10 border-0 border-b-2 border-zinc-900 bg-transparent text-zinc-900 focus:ring-0 focus:border-red-800 sm:text-sm transition-colors font-bold uppercase tracking-widest text-[10px]"
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="most_viewed">Most Viewed</option>
+                <option value="most_liked">Most Liked</option>
+              </select>
+            </div>
           </div>
 
           {allTags.length > 0 && (
@@ -93,15 +137,16 @@ export default function Articles() {
             <div className="flex justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-800"></div>
             </div>
-          ) : filteredArticles.length === 0 ? (
+          ) : filteredAndSortedArticles.length === 0 ? (
             <div className="text-center py-16 border-t border-b border-zinc-200">
               <Search className="h-8 w-8 text-zinc-400 mx-auto mb-4" />
               <h3 className="text-lg font-bold uppercase tracking-widest text-zinc-900">No articles found</h3>
               <p className="mt-2 text-zinc-500 font-serif italic">Try adjusting your search or filter criteria.</p>
             </div>
           ) : (
-            filteredArticles.map((article) => (
-              <article key={article.id} className="group border-b border-zinc-200 pb-16 last:border-0">
+            <>
+              {paginatedArticles.map((article) => (
+                <article key={article.id} className="group border-b border-zinc-200 pb-16 last:border-0">
                 <div className="flex flex-wrap items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-6">
                   <div className="flex items-center gap-1">
                     <User className="h-3.5 w-3.5" />
@@ -161,7 +206,51 @@ export default function Articles() {
                   )}
                 </div>
               </article>
-            ))
+            ))}
+
+            {totalPages > 1 && (
+              <div className="mt-16 pt-8 border-t border-zinc-200 flex flex-col sm:flex-row items-center justify-between gap-6">
+                <button
+                  onClick={() => {
+                    setCurrentPage(p => Math.max(1, p - 1));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  disabled={currentPage === 1}
+                  className="inline-flex items-center gap-2 px-4 py-2 border border-zinc-900 text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-100 w-full sm:w-auto justify-center"
+                >
+                  <ChevronLeft className="w-4 h-4" /> Previous
+                </button>
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setCurrentPage(i + 1);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className={`w-8 h-8 flex items-center justify-center border text-[10px] font-bold transition-colors ${
+                        currentPage === i + 1
+                          ? 'border-red-800 bg-red-800 text-white'
+                          : 'border-zinc-900 text-zinc-900 hover:bg-zinc-100'
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => {
+                    setCurrentPage(p => Math.min(totalPages, p + 1));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  disabled={currentPage === totalPages}
+                  className="inline-flex items-center gap-2 px-4 py-2 border border-zinc-900 text-[10px] font-bold uppercase tracking-widest transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-100 w-full sm:w-auto justify-center"
+                >
+                  Next <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </>
           )}
         </div>
       </div>
