@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useWriterArticles, addArticle, updateArticle, deleteArticle, Article, calculateReadTime } from '../lib/storage';
 import { Edit2, Trash2, Plus, Check, X, Send } from 'lucide-react';
 import { auth } from '../lib/firebase';
+import SimpleMdeEditor from "react-simplemde-editor";
+import "easymde/dist/easymde.min.css";
 
 export default function WriterDashboard() {
   const navigate = useNavigate();
@@ -163,13 +165,17 @@ export default function WriterDashboard() {
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-900 mb-2">Content</label>
-                <textarea
-                  value={editForm.content || ''}
-                  onChange={e => setEditForm({ ...editForm, content: e.target.value })}
-                  rows={6}
-                  className="block w-full border-zinc-900 focus:border-red-800 focus:ring-0 sm:text-sm p-3 border bg-transparent font-serif italic"
-                />
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-900 mb-2">Content (Markdown Supported)</label>
+                <div className="prose-zinc max-w-none">
+                  <SimpleMdeEditor
+                    value={editForm.content || ''}
+                    onChange={value => setEditForm({ ...editForm, content: value })}
+                    options={{
+                      spellChecker: false,
+                      hideIcons: ["side-by-side", "fullscreen"],
+                    }}
+                  />
+                </div>
               </div>
               <div className="flex justify-end gap-3 mt-8">
                 <button
