@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { useArticles, addComment, Article, useUserRole, incrementViewCount, toggleLike, calculateReadTime } from '../lib/storage';
 import { Calendar, User, Share2, Code, MessageSquare, ArrowLeft, Eye, Heart } from 'lucide-react';
 import { auth } from '../lib/firebase';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function ArticleDetail() {
   const { id } = useParams<{ id: string }>();
@@ -53,7 +55,20 @@ export default function ArticleDetail() {
     );
   }
 
-  const handleShare = () => {
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: article.title,
+          text: `Check out "${article.title}" by ${article.author} on Voices Rising`,
+          url: window.location.href,
+        });
+        return;
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    }
+    // Fallback if Web Share API is not available
     navigator.clipboard.writeText(window.location.href);
     setCopyMessage('Link copied to clipboard!');
     setTimeout(() => setCopyMessage(''), 3000);
@@ -161,8 +176,10 @@ export default function ArticleDetail() {
             )}
           </header>
           
-          <div className="prose prose-lg prose-zinc max-w-none text-zinc-800 whitespace-pre-wrap mb-24 font-serif leading-relaxed">
-            {article.content}
+          <div className="markdown-body prose prose-lg prose-zinc max-w-none text-zinc-800 font-serif leading-relaxed mb-24">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {article.content}
+            </ReactMarkdown>
           </div>
         </article>
 
