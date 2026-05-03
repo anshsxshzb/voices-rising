@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useArticles, useReaders, useAccessRequests, useWriterApplications, addArticle, updateArticle, deleteArticle, Article, addReader, deleteReader, deleteAccessRequest, denyAccessRequest, updateReaderRole, addNotification, updateWriterApplicationStatus } from '../lib/storage';
 import { Edit2, Trash2, Plus, Check, X, Users, FileText, Bell, AlertCircle } from 'lucide-react';
+import SimpleMdeEditor from "react-simplemde-editor";
+import "easymde/dist/easymde.min.css";
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -301,13 +303,17 @@ export default function Admin() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-900 mb-2">Content</label>
-                    <textarea
-                      value={editForm.content || ''}
-                      onChange={e => setEditForm({ ...editForm, content: e.target.value })}
-                      rows={6}
-                      className="block w-full border-zinc-900 focus:border-red-800 focus:ring-0 sm:text-sm p-3 border bg-transparent font-serif italic"
-                    />
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-900 mb-2">Content (Markdown Supported)</label>
+                    <div className="prose-zinc max-w-none">
+                      <SimpleMdeEditor
+                        value={editForm.content || ''}
+                        onChange={value => setEditForm({ ...editForm, content: value })}
+                        options={{
+                          spellChecker: false,
+                          hideIcons: ["side-by-side", "fullscreen"],
+                        }}
+                      />
+                    </div>
                   </div>
                   <div className="flex items-center">
                     <input
